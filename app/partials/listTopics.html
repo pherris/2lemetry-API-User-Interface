@@ -1,0 +1,9 @@
+<span id="results">Results: {{ topicObject.size || 0 }}</span>
+<br/>
+Search: <input ng-model="query">
+
+<ul class="phones">
+    <li ng-repeat="topic in topicObject.results | filter:query">
+        <p>{{ topic }}</p>
+    </li>
+</ul>
