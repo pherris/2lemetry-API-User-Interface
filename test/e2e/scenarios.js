@@ -17,6 +17,7 @@ describe('my app', function () {
     describe('authenticate', function () {
 
         beforeEach(function () {
+            localStorage.clear();
             browser().navigateTo('#/authenticate');
         });
 
@@ -56,19 +57,15 @@ describe('my app', function () {
 
         beforeEach(function () {
             browser().navigateTo('#/authenticate');
-            //TODO not authenticated
-            sleep(5);
             browser().navigateTo('#/listTopics');
         });
 
         it('should list your topics', function () {
-            sleep(1);
-
+            //should have results with count at top
             expect(element('[ng-view] #results').text()).
                 toMatch(/Results: \d+/);
-            console.log(element('[ng-view] p'));
-            expect(element('[ng-view] p')).
-                toMatch(/.+>.+<\/p>/);
+            expect(element('[ng-view] .phones li').text()).
+                toMatch(/[\.a-z0-9]+[\/]+/);
         });
         //TODO tests
 //        it('should render view1 when user navigates to /view1', function () {

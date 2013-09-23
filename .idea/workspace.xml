@@ -10,7 +10,7 @@
     <file path="/a.dummy" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379443208600" ignored="false" />
     <file path="/services.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379906497848" ignored="false" />
     <file path="/app.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1378960022121" ignored="false" />
-    <file path="/scenarios.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379127197561" ignored="false" />
+    <file path="/scenarios.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379949908502" ignored="false" />
     <file path="/listTopics.html" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379350652026" ignored="false" />
     <file path="/accounts.html" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379441316404" ignored="false" />
     <file path="/accountDetails.html" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379602574182" ignored="false" />
@@ -37,85 +37,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="12" selection-start="89" selection-end="92" vertical-scroll-proportion="-2.6153846">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="controllers.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/js/controllers.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="102" column="33" selection-start="3585" selection-end="3598" vertical-scroll-proportion="-20.48">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="controllersSpec.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/unit/controllersSpec.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="0" selection-start="60" selection-end="60" vertical-scroll-proportion="-2.72">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="login.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/partials/login.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="73" selection-start="514" selection-end="514" vertical-scroll-proportion="-7.1923075">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="accounts.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/partials/accounts.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="49" column="46" selection-start="1534" selection-end="1534" vertical-scroll-proportion="-32.03846">
-              <folding>
-                <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#1;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="scenarios.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="scenarios.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/e2e/scenarios.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="24" selection-start="1251" selection-end="1251" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="services.js" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/app/js/services.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="26" selection-start="1719" selection-end="1719" vertical-scroll-proportion="0.96562034">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="servicesSpec.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/unit/servicesSpec.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="46" column="12" selection-start="1851" selection-end="1851" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="directives.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/js/directives.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="16" selection-start="292" selection-end="292" vertical-scroll-proportion="0.0">
+            <state line="67" column="41" selection-start="2481" selection-end="2481" vertical-scroll-proportion="0.94917786">
               <folding />
             </state>
           </provider>
@@ -124,7 +49,7 @@
       <file leaf-file-name="listTopics.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/partials/listTopics.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="2" column="30" selection-start="94" selection-end="99" vertical-scroll-proportion="-1.3076923">
+            <state line="4" column="17" selection-start="114" selection-end="120" vertical-scroll-proportion="-2.6153846">
               <folding />
             </state>
           </provider>
@@ -141,7 +66,6 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/index.html" />
-        <option value="$PROJECT_DIR$/test/e2e/scenarios.js" />
         <option value="$PROJECT_DIR$/app/lib/angular-local-storage/localStorageModule.js" />
         <option value="$PROJECT_DIR$/app/partials/listTopics.html" />
         <option value="$PROJECT_DIR$/app/index.html" />
@@ -155,6 +79,7 @@
         <option value="$PROJECT_DIR$/test/unit/controllersSpec.js" />
         <option value="$PROJECT_DIR$/app/js/services.js" />
         <option value="$PROJECT_DIR$/test/unit/servicesSpec.js" />
+        <option value="$PROJECT_DIR$/test/e2e/scenarios.js" />
       </list>
     </option>
   </component>
@@ -560,13 +485,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/partials/listTopics.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="30" selection-start="94" selection-end="99" vertical-scroll-proportion="-1.3076923">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/partials/accounts.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="49" column="46" selection-start="1534" selection-end="1534" vertical-scroll-proportion="-32.03846">
@@ -579,7 +497,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/js/directives.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="16" selection-start="292" selection-end="292" vertical-scroll-proportion="0.0">
+        <state line="12" column="16" selection-start="292" selection-end="292" vertical-scroll-proportion="0.30493274">
           <folding />
         </state>
       </provider>
@@ -598,16 +516,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/e2e/scenarios.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="24" selection-start="1251" selection-end="1251" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/unit/servicesSpec.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="12" selection-start="1851" selection-end="1851" vertical-scroll-proportion="0.0">
+        <state line="46" column="12" selection-start="1851" selection-end="1851" vertical-scroll-proportion="0.6188341">
           <folding />
         </state>
       </provider>
@@ -615,6 +526,20 @@
     <entry file="file://$PROJECT_DIR$/app/js/services.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="38" column="26" selection-start="1719" selection-end="1719" vertical-scroll-proportion="0.96562034">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/partials/listTopics.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="17" selection-start="114" selection-end="120" vertical-scroll-proportion="-2.6153846">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/e2e/scenarios.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="67" column="41" selection-start="2481" selection-end="2481" vertical-scroll-proportion="0.94917786">
           <folding />
         </state>
       </provider>
