@@ -22,7 +22,6 @@ var serviceModule = angular.module('myApp.services', ['ngResource']).
     //creates a persistent store to use for immutable (really immutable or probably
     // immutable for the duration of the user's session) data to be retained across screens
     factory('PersistedData', function ($rootScope) {
-
         return {
             setDataSet: function (name, object) {
                 console.log(object);
@@ -34,10 +33,14 @@ var serviceModule = angular.module('myApp.services', ['ngResource']).
                 return JSON.parse(localStorage.getItem(name));
             },
             getDataSet: function (name) {
+                var dataSet = JSON.parse(localStorage.getItem(name));
+                //for data in local storage - don't let it be older than 3 hrs
+                if (dataSet && dataSet.created < ((new Date()).getTime()) - 1000 * 60 * 60 * 3) {
+                    localStorage.removeItem(name);
+                }
                 return JSON.parse(localStorage.getItem(name));
             }
         }
-
     });
 
 /**
@@ -47,7 +50,7 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
     return {
         Topics: $resource('https://api.m2m.io/2/account/domain/:domain/topics', {domain: function () {
             var domain = PersistedData.getDataSet('Domain');
-            return domain.rowkey;
+            return (domain && domain.rowkey) ? domain.rowkey : "";
         } }),
         Account: $resource('https://api.m2m.io/2/account/:email', {email: '@email'}),
         ACL: $resource('https://api.m2m.io/2/account/domain/:domain/acl/:acl', {acl: '@acl', domain: function () {
