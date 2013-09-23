@@ -10,7 +10,7 @@
     <file path="/a.dummy" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379443208600" ignored="false" />
     <file path="/services.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379906497848" ignored="false" />
     <file path="/app.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1378960022121" ignored="false" />
-    <file path="/scenarios.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379949908502" ignored="false" />
+    <file path="/scenarios.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379955529159" ignored="false" />
     <file path="/listTopics.html" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379350652026" ignored="false" />
     <file path="/accounts.html" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379441316404" ignored="false" />
     <file path="/accountDetails.html" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379602574182" ignored="false" />
@@ -18,6 +18,7 @@
     <file path="/app.css" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379440805927" ignored="false" />
     <file path="/controllersSpec.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379615043853" ignored="false" />
     <file path="/servicesSpec.js" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379906707607" ignored="false" />
+    <file path="/credentials.json" changelist="a976fede-20f4-47bb-b55d-4c56683afdb3" time="1379954141726" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,10 +38,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="scenarios.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="scenarios.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/e2e/scenarios.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="67" column="41" selection-start="2481" selection-end="2481" vertical-scroll-proportion="0.94917786">
+            <state line="86" column="26" selection-start="3078" selection-end="3078" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="credentials.json" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/credentials.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="1" column="21" selection-start="19" selection-end="23" vertical-scroll-proportion="0.02643857">
               <folding />
             </state>
           </provider>
@@ -80,6 +90,7 @@
         <option value="$PROJECT_DIR$/app/js/services.js" />
         <option value="$PROJECT_DIR$/test/unit/servicesSpec.js" />
         <option value="$PROJECT_DIR$/test/e2e/scenarios.js" />
+        <option value="$PROJECT_DIR$/credentials.json" />
       </list>
     </option>
   </component>
@@ -539,7 +550,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test/e2e/scenarios.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="67" column="41" selection-start="2481" selection-end="2481" vertical-scroll-proportion="0.94917786">
+        <state line="86" column="26" selection-start="3078" selection-end="3078" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/credentials.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="21" selection-start="19" selection-end="23" vertical-scroll-proportion="0.02643857">
           <folding />
         </state>
       </provider>

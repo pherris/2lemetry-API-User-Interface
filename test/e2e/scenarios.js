@@ -14,7 +14,7 @@ describe('my app', function () {
     });
 
 
-    describe('authenticate', function () {
+    describe('notAuthenticated', function () {
 
         beforeEach(function () {
             localStorage.clear();
@@ -35,10 +35,28 @@ describe('my app', function () {
             //expect($http.defaults.headers.common['Authorization']).toBeNull();
         });
 
+    });
+
+    describe('authenticatd', function () {
+        var permissions = {};
+        beforeEach(function () {
+            this.permissions = {};
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    permissions = JSON.parse(xhr.responseText);
+                }
+            }
+            xhr.open("GET", "/credentials.json", false);
+            xhr.send();
+
+            browser().navigateTo('#/authenticate');
+        });
+
         it('should indicate that you ARE authenticated', function () {
             //login
-            input('username').enter('poc@peoplenetonline.com');
-            input('password').enter('pocpass');
+            input('username').enter(permissions.username);
+            input('password').enter(permissions.password);
             element('button:eq(0)').click();
 
             sleep(1);
@@ -56,6 +74,7 @@ describe('my app', function () {
     describe('listTopics', function () {
 
         beforeEach(function () {
+            //pulls credentials from localstorage
             browser().navigateTo('#/authenticate');
             browser().navigateTo('#/listTopics');
         });
