@@ -4,13 +4,34 @@
 
 var myApp = angular.module('myApp.controllers', []);
 
-angular.module('myApp.controllers').controller('AuthenticationController', ['$scope', '$http', 'AuthService', 'm2m', 'PersistedData', function ($scope, $http, AuthService, m2m, PersistedData) {
+angular.module('myApp.controllers').controller('AuthenticationController', ['$scope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $http, $timeout, AuthService, m2m, PersistedData) {
     $scope.maskPassword = function (password) {
         var mask = "";
         for (var i = 0; i < password.length - 1; i++) {
             mask += "*";
         }
+
         $scope.maskedPassword = mask + password.substr(password.length - 1, password.length);
+
+        $scope.promise = $timeout((function () {
+            var position = password.length - 1;
+
+            //only call once...
+            if ($scope.promise) {
+                $timeout.cancel($scope.promise);
+            }
+
+            return function () {
+
+                var character = $scope.maskedPassword.substring(position, position + 1);
+
+                if (character !== "*") {
+                    $scope.maskedPassword = $scope.maskedPassword.substr(0, position) + "*" + $scope.maskedPassword.substr(position + 1, $scope.maskedPassword.length);
+                }
+            }
+
+            //$scope.maskedPassword = $scope.maskedPassword.
+        })(), 750);
     }
 
     //get token to use for duration of session
@@ -55,7 +76,7 @@ angular.module('myApp.controllers').controller('CreateAccountController', ['$sco
         $scope.newAccount = m2m.AccountCreate.create({email: email, password: password }, function (value, responseHeaders) {
             $location.path("/accounts/" + email);
         }, function (httpResponse) {
-               $scope.error = httpResponse.data.message;
+            $scope.error = httpResponse.data.message;
         });
     }
 }]);
