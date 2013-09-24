@@ -32,6 +32,9 @@ describe('my app', function () {
             expect(element('[ng-view] li:first').text()).
                 toMatch(/License Usage:  \//);
             //TODO: figure out how to access $http in this and the authenticated tests to ensure header is added
+            expect(localStorage.getItem("BearerToken")).toBeNull();
+            expect(localStorage.getItem("Domain")).toBeNull();
+
             //expect($http.defaults.headers.common['Authorization']).toBeNull();
         });
 
@@ -66,6 +69,9 @@ describe('my app', function () {
                 toMatch(/License Usage: \d[\,\d]* \/ \d[\,\d]*/);
 
             //TODO: figure out how to access $http in this and not auth tests to ensure header is added
+            //checking for localstorage values instead
+            expect(localStorage.getItem("BearerToken")).toBeDefined();
+            expect(localStorage.getItem("Domain")).toBeDefined();
             //expect($http.defaults.headers.common['Authorization']).not().toBeNull();
         });
 

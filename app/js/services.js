@@ -53,6 +53,22 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
             return (domain && domain.rowkey) ? domain.rowkey : "";
         } }),
         Account: $resource('https://api.m2m.io/2/account/:email', {email: '@email'}),
+        AccountCreate: $resource('https://api.m2m.io/2/account/domain/:domain', {}, {
+            create: {
+                method: 'POST',
+                params: {domain: function () {
+                    var domain = PersistedData.getDataSet('Domain');
+                    return domain.rowkey;
+                }, newUserDomain: function () {
+                    var domain = PersistedData.getDataSet('Domain');
+                    return domain.rowkey;
+                }, clearAcl: true, email: '@email', password: '@password' },
+                isArray: true, //limits permissions
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }
+            }
+        }),
         ACL: $resource('https://api.m2m.io/2/account/domain/:domain/acl/:acl', {acl: '@acl', domain: function () {
             var domain = PersistedData.getDataSet('Domain');
             return domain.rowkey;

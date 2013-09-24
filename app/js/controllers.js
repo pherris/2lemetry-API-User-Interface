@@ -18,16 +18,17 @@ angular.module('myApp.controllers').controller('AuthenticationController', ['$sc
         var onAuthOK = function (a) {
             PersistedData.setDataSet('BearerToken', a);
             $scope.token = a.token;
+            //set global $http stuff
             $http.defaults.headers.common['Authorization'] = 'Bearer ' + a.token;
+            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
 
             $scope.domain = m2m.Domain.get(function () {
-                console.log("on success");
                 PersistedData.setDataSet('Domain', $scope.domain);
             });
         }
 
         var onAuthKO = function (a) {
-            console.log($scope.status);
+            console.log("login failed");
         }
 
         AuthService.auth(username, password, onAuthOK, onAuthKO);
@@ -49,16 +50,24 @@ angular.module('myApp.controllers').controller('ListTopicsController', ['$scope'
     $scope.topicObject = m2m.Topics.get();
 }]);
 
-angular.module('myApp.controllers').controller('AccountController', ['$scope', 'm2m', 'PersistedData', function ($scope, m2m, PersistedData) {
+angular.module('myApp.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', function ($scope, $location, m2m) {
+    $scope.createUser = function (email, password) {
+        $scope.newAccount = m2m.AccountCreate.create({email: email, password: password }, function (value, responseHeaders) {
+            $location.path("/accounts/" + email);
+        }, function (httpResponse) {
+               $scope.error = httpResponse.data.message;
+        });
+    }
+}]);
+
+angular.module('myApp.controllers').controller('AccountController', ['$scope', '$routeParams', 'm2m', 'PersistedData', function ($scope, $routeParams, m2m, PersistedData) {
     //$scope.account = m2m.Account.get();
 
     $scope.findUser = function (email) {
         $scope.account = m2m.Account.get({ 'email': email }, function () {
-                console.log($scope.account);
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
             }
         );
-
     }
 
     $scope.saveUpdatedPermissions = function (newPerm) {
@@ -66,10 +75,9 @@ angular.module('myApp.controllers').controller('AccountController', ['$scope', '
         newPerm.acl = $scope.account.aclid;
 
         m2m.ACL.save(newPerm, function () {
-            console.log("success!");
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
         }, function () {
-            console.log("failure");
+            console.log("failure: could not save new permissions");
         });
     };
 
@@ -80,9 +88,8 @@ angular.module('myApp.controllers').controller('AccountController', ['$scope', '
             m2m.ACL.remove({ topic: topic, acl: $scope.account.aclid }, function () {
                 //update list.
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
-                console.log("success!");
             }, function () {
-                console.log("failure");
+                console.log("failed removing topic permission");
             });
         }
     }
@@ -93,11 +100,14 @@ angular.module('myApp.controllers').controller('AccountController', ['$scope', '
         }
 
         m2m.ACL.save({ get: true, post: false, delete: false, pub: false, sub: false, topic: topic, acl: $scope.account.aclid }, function () {
-            console.log("added!");
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
         }, function () {
             console.log("failure: could not add");
         });
+    }
+
+    if ($routeParams.email) {
+        $scope.findUser($routeParams.email);
     }
 
     $scope.domain = PersistedData.getDataSet('Domain');
