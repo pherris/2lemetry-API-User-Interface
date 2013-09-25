@@ -24,7 +24,6 @@ var serviceModule = angular.module('myApp.services', ['ngResource']).
     factory('PersistedData', function ($rootScope) {
         return {
             setDataSet: function (name, object) {
-                console.log(object);
                 //if the object doesnt say when it was created...
                 if (!object.created) {
                     object.created = (new Date()).getTime();

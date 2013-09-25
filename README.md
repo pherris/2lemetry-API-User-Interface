@@ -9,3 +9,7 @@ This interface will allow you to make changes to whatever account you login to, 
 ## Started from angular-seed
 
 See the docs there for info on running unit and e2e tests.
+
+### Credentials for E2E
+
+Update credentials.json with your username/pwd to test your account.
