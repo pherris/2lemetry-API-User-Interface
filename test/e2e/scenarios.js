@@ -2,7 +2,7 @@
 
 /* http://docs.angularjs.org/guide/dev_guide.e2e-testing */
 
-describe('my app', function () {
+describe('2lemetryApiV2', function () {
 
     beforeEach(function () {
         browser().navigateTo('../../app/index.html');
@@ -35,7 +35,7 @@ describe('my app', function () {
 
     });
 
-    describe('authenticatd', function () {
+    describe('authenticated', function () {
         var permissions = {};
         beforeEach(function () {
             this.permissions = {};

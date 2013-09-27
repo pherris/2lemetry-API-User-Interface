@@ -40,7 +40,7 @@
     <li ng-repeat="(key, data) in acl.attributes">
         <p><strong>{{ key }}</strong>: {{ data }} <a ng-click="removeTopicPermissions(key)">X</a></p>
 
-        <div fundoo-rating permissions="data" topic="key"
+        <div topic-permissions permissions="data" topic="key"
              on-permission-change="saveUpdatedPermissions(permissions)"></div>
     </li>
 </ul>

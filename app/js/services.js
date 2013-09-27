@@ -5,7 +5,7 @@
 
 // Demonstrate how to register services
 // In this case it is a simple value service.
-var serviceModule = angular.module('myApp.services', ['ngResource']).
+var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
     value('version', '0.0.1').
     factory('AuthService',function ($http) {
         //$http is recommended for cases where you have to pass in variables (really) - or maybe I don't know what I'm doing...

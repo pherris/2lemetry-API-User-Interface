@@ -67,11 +67,11 @@ angular.module('myApp.controllers').controller('AuthenticationController', ['$sc
     }
 }]);
 
-angular.module('myApp.controllers').controller('ListTopicsController', ['$scope', 'm2m', function ($scope, m2m) {
+angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', ['$scope', 'm2m', function ($scope, m2m) {
     $scope.topicObject = m2m.Topics.get();
 }]);
 
-angular.module('myApp.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', function ($scope, $location, m2m) {
+angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', function ($scope, $location, m2m) {
     $scope.createUser = function (email, password) {
         $scope.newAccount = m2m.AccountCreate.create({email: email, password: password }, function (value, responseHeaders) {
             $location.path("/accounts/" + email);
@@ -81,7 +81,7 @@ angular.module('myApp.controllers').controller('CreateAccountController', ['$sco
     }
 }]);
 
-angular.module('myApp.controllers').controller('AccountController', ['$scope', '$routeParams', 'm2m', 'PersistedData', function ($scope, $routeParams, m2m, PersistedData) {
+angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$routeParams', 'm2m', 'PersistedData', function ($scope, $routeParams, m2m, PersistedData) {
     //$scope.account = m2m.Account.get();
 
     $scope.findUser = function (email) {

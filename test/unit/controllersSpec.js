@@ -70,7 +70,7 @@ var app = {
 describe('ListTopicsController', function () {
     var scope;
 
-    beforeEach(module('myApp.controllers'));
+    beforeEach(module('2lemetryApiV2.controllers'));
 
     beforeEach(angular.mock.inject(function ($rootScope, $controller) {
         scope = $rootScope.$new();
@@ -90,7 +90,7 @@ describe('ListTopicsController', function () {
 describe('AuthenticationController', function () {
     var scope, http, timeout;
 
-    beforeEach(module('myApp.controllers'));
+    beforeEach(module('2lemetryApiV2.controllers'));
 
     beforeEach(inject(function ($rootScope, $controller, $http, $timeout) {
         scope = $rootScope.$new();
@@ -125,7 +125,7 @@ describe('AuthenticationController', function () {
 describe('CreateAccountController', function () {
     var scope, location;
 
-    beforeEach(module('myApp.controllers'));
+    beforeEach(module('2lemetryApiV2.controllers'));
 
     beforeEach(inject(function ($rootScope, $controller, $location) {
         scope = $rootScope.$new();
@@ -147,7 +147,7 @@ describe('CreateAccountController', function () {
 describe('AccountController', function () {
     var scope, routeParams, pesistedData;
     '$scope', '$routeParams', 'm2m', 'PersistedData'
-    beforeEach(module('myApp.controllers'));
+    beforeEach(module('2lemetryApiV2.controllers'));
 
     beforeEach(inject(function ($rootScope, $controller, $routeParams) {
         scope = $rootScope.$new();

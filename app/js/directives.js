@@ -3,13 +3,13 @@
 /* Directives */
 
 
-angular.module('myApp.directives', []).
+angular.module('2lemetryApiV2.directives', []).
     directive('appVersion', ['version', function (version) {
         return function (scope, elm, attrs) {
             elm.text(version);
         };
     }]).
-    directive('fundooRating', function () {
+    directive('topicPermissions', function () {
         return {
             restrict: 'A',
             template: '<ul>' +
