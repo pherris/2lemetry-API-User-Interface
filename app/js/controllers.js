@@ -2,9 +2,9 @@
 
 /* Controllers */
 
-var myApp = angular.module('myApp.controllers', []);
+var myApp = angular.module('2lemetryApiV2.controllers', []);
 
-angular.module('myApp.controllers').controller('AuthenticationController', ['$scope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $http, $timeout, AuthService, m2m, PersistedData) {
+angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $http, $timeout, AuthService, m2m, PersistedData) {
     $scope.maskPassword = function (password) {
         var mask = "";
         for (var i = 0; i < password.length - 1; i++) {
