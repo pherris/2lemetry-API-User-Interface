@@ -123,7 +123,7 @@ describe('AuthenticationController', function () {
 });
 
 describe('CreateAccountController', function () {
-    var scope, location;
+    var scope, location, confirm;
 
     beforeEach(module('2lemetryApiV2.controllers'));
 
@@ -131,11 +131,18 @@ describe('CreateAccountController', function () {
         scope = $rootScope.$new();
         location = $location;
 
+        delete scope.confirmMessage;
+
         $controller('CreateAccountController', {
             '$scope': scope,
             '$location': $location,
             'm2m': app.mocks.m2m
         });
+
+        confirm = function (message) {
+            scope.confirmMessage = message; //for testability
+            return true;
+        }
     }));
 
     it('should create a user and redirect to show the user', (function () {
@@ -158,21 +165,42 @@ describe('AccountController', function () {
             'm2m': app.mocks.m2m,
             'PersistedData': app.mocks.PersistedData
         });
+
+        scope.account = {};
+        scope.account.aclid = "123";
+
     }));
 
     it('should find a users ACL id and search for their permissions based on that acl.', (function () {
-        scope.account = {};
-        scope.account.aclid = "123";
         scope.findUser("test@test.com");
         expect(scope.acl.active).toBe(1);
     }));
 
     it('should save changes to permissions.', (function () {
-        scope.account = {};
-        scope.account.aclid = "123";
         expect(scope.acl).toBe(undefined);
         scope.saveUpdatedPermissions({});
 
         expect(scope.acl.active).toBe(1);
     }));
+
+    it('should remove a topic from the list of allowed permissions', (function () {
+        //todo figure out how to work around the call to confirm
+        //scope.removeTopicPermissions("domain/topic");
+        //expect(scope.confirmMessage.length).toBeGreaterThan(0);
+    }));
+
+    it('should keep users from messing up their topics', (function () {
+        //watch out for toMatch with regex in the topic string
+        expect(scope.validateTopic("/mytopic")).toEqual("MYTOPIC");
+        expect(scope.validateTopic("/mytopic/#")).toEqual("MYTOPIC/#");
+        expect(scope.validateTopic("mytopic/that/is/really/long/and/maynot/be/realistic")).toEqual("MYTOPIC/THAT/IS/REALLY/LONG/AND/MAYNOT/BE/REALISTIC");
+        expect(scope.validateTopic("mytopic/that/is/really/long/and/+/be/realistic/+")).toEqual("MYTOPIC/THAT/IS/REALLY/LONG/AND/+/BE/REALISTIC/+");
+    }));
+
+    it('should save new permissions with the default values', (function () {
+        expect(scope.acl).toBe(undefined);
+        scope.saveNewPermissions("domain/topic");
+        expect(scope.acl.active).toBe(1);
+    }));
+
 });

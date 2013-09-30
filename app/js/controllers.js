@@ -115,11 +115,16 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         }
     }
 
-    $scope.saveNewPermissions = function (topic) {
+    $scope.validateTopic = function (topic) {
         if (topic.charAt(0) == "/") {
             topic = topic.substr(1, topic.length);
         }
+        return topic.toUpperCase();
+        //electing not to validate on domain here since someone may want a topic like /domain/domain/topic
+    }
 
+    $scope.saveNewPermissions = function (topic) {
+        topic = $scope.validateTopic(topic);
         m2m.ACL.save({ get: true, post: false, delete: false, pub: false, sub: false, topic: topic, acl: $scope.account.aclid }, function () {
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
         }, function () {
