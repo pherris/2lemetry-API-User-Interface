@@ -54,7 +54,16 @@ angular.module('2lemetryApiV2.controllers').controller('CreateAccountController'
 
 angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$routeParams', 'm2m', 'PersistedData', function ($scope, $routeParams, m2m, PersistedData) {
     // $scope.account = m2m.Account.get();
-
+	$scope.changePassword = function (newPassword, updatingRowkey) {
+        $scope.pwdChange = m2m.AccountPwd.change({ password: newPassword, rowkey: updatingRowkey }, function (value, responseHeaders) {
+            $scope.account = value;
+            $scope.newPwd = null;
+            $scope.newPwd2 = null;
+        }, function (httpResponse) {
+            $scope.error = httpResponse.data.message;
+        });
+    }
+	
     $scope.findUser = function (email) {
         $scope.account = m2m.Account.get({ 'email': email }, function () {
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});

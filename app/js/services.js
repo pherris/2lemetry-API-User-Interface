@@ -51,7 +51,16 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
             var domain = PersistedData.getDataSet('Domain');
             return (domain && domain.rowkey) ? domain.rowkey : "";
         } }),
+        //TODO: pull all these Account interactions together.
         Account: $resource('https://api.m2m.io/2/account/:email', {email: '@email'}),
+        AccountPwd: $resource('https://api.m2m.io/2/account/:rowkey', {rowkey: '@rowkey'}, {
+        	change: {
+        		method: 'PUT',
+        		params: {
+        			password: '@password'
+        		}
+        	}
+        }),
         AccountCreate: $resource('https://api.m2m.io/2/account/domain/:domain', {}, {
             create: {
                 method: 'POST',

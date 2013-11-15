@@ -17,12 +17,15 @@ angular.module('2lemetryApiV2.directives', []).
     		},
     		link: function (scope, element, attrs) {
     			scope.$watch('pwd', function (newValue, oldValue) {
+    				var mask = "", ele = element[0];
+    				
     				if (newValue === oldValue) {
-    					console.log("new: " + newValue);
-    					console.log("old: " + oldValue);
+    					return;
+    				} else if (newValue == null) {
+    					ele.textContent = "";
     					return;
     				}
-    				var mask = "", ele = element[0];
+    				
     		        for (var i = 0; i < newValue.length - 1; i++) {
     		            mask += "*";
     		        }

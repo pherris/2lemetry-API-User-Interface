@@ -2,6 +2,8 @@
 
 /* jasmine specs for directives go here */
 
+//TODO: test for password mask
+
 describe('directives', function () {
     beforeEach(module('2lemetryApiV2.directives'));
 

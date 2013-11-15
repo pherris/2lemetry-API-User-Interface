@@ -2,20 +2,27 @@
 <div style="float:right; width:50%;">
     Show Details: <input type="checkbox" ng-model="showUserDetails">
     <div ng-show="showUserDetails">
-    <ul>
-        <li>
-            <strong>acl :</strong> <a href="#/accounts/{{ account.aclid }}">{{ account.aclid }}</a>
-        </li>
-        <li>
-            <strong>attributes :</strong>{{ account.attributes }}
-        </li>
-        <li>
-            <strong>row key :</strong> {{ account.rowkey }}
-        </li>
-    </ul>
-    <strong>Change Password :</strong> <input type="password" ng-model="newPwd"> <span masked-password pwd="newPwd"></span>
-    <br/>
-    <button ng-click="changePwd(newPwd)">SAVE</button>
+	    <ul>
+	        <li>
+	            <strong>acl :</strong> {{ account.aclid }}
+	        </li>
+	        <li>
+	            <strong>attributes :</strong>{{ account.attributes }}
+	        </li>
+	        <li>
+	            <strong>row key :</strong> {{ account.rowkey }}
+	        </li>
+	    </ul>
+	    <strong>New Password :</strong> <input type="password" ng-model="newPwd"> <span masked-password pwd="newPwd"></span>
+	    <br/>
+	    <strong>Confirm Password :</strong> <input type="password" ng-model="newPwd2"> <span masked-password pwd="newPwd2"></span>
+	    <br/>
+	    <div ng-show="newPwd.length > 0 && newPwd === newPwd2">
+		    <button ng-click="changePassword(newPwd, account.rowkey)">SAVE</button>
+		</div>
+		<div ng-show="newPwd !== newPwd2">
+		    Passwords do not match
+		</div>
     </div>
 </div>
 <div style="width:50%;">
