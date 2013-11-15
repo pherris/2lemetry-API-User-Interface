@@ -1,7 +1,8 @@
 <h2>Account Management</h2>
 <div style="float:right; width:50%;">
     Show Details: <input type="checkbox" ng-model="showUserDetails">
-    <ul ng-show="showUserDetails">
+    <div ng-show="showUserDetails">
+    <ul>
         <li>
             <strong>acl :</strong> <a href="#/accounts/{{ account.aclid }}">{{ account.aclid }}</a>
         </li>
@@ -12,11 +13,14 @@
             <strong>row key :</strong> {{ account.rowkey }}
         </li>
     </ul>
+    <strong>Change Password :</strong> <input type="password" ng-model="newPwd"> <span masked-password pwd="newPwd"></span>
+    <br/>
+    <button ng-click="changePwd(newPwd)">SAVE</button>
+    </div>
 </div>
 <div style="width:50%;">
     <input ng-model="email">
     <button ng-click="findUser(email)">SEARCH</button>
-
     <ul>
         <li>
             <strong>email :</strong> {{ account.email }}

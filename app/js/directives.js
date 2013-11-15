@@ -9,6 +9,48 @@ angular.module('2lemetryApiV2.directives', []).
             elm.text(version);
         };
     }]).
+    directive('maskedPassword', function ($timeout) {
+    	return {
+    		restrict: 'A',
+    		scope: {
+    			pwd: '=pwd'
+    		},
+    		link: function (scope, element, attrs) {
+    			scope.$watch('pwd', function (newValue, oldValue) {
+    				if (newValue === oldValue) {
+    					console.log("new: " + newValue);
+    					console.log("old: " + oldValue);
+    					return;
+    				}
+    				var mask = "", ele = element[0];
+    		        for (var i = 0; i < newValue.length - 1; i++) {
+    		            mask += "*";
+    		        }
+
+    		        ele.textContent = mask + newValue.substr(newValue.length - 1, newValue.length);
+
+    		        scope.promise = $timeout((function () {
+    		            var position = newValue.length - 1;
+
+    		            // only call once...
+    		            if (scope.promise) {
+    		                $timeout.cancel(scope.promise);
+    		            }
+
+    		            return function () {
+
+    		                var character = ele.textContent.substring(position, position + 1);
+
+    		                if (character !== "*") {
+    		                	ele.textContent = ele.textContent.substr(0, position) + "*" + ele.textContent.substr(position + 1, ele.textContent.length);
+    		                }
+    		            }
+
+    		        })(), 750);
+                });
+    		}
+    	};
+    }).
     directive('topicPermissions', function () {
         return {
             restrict: 'A',
@@ -59,5 +101,5 @@ angular.module('2lemetryApiV2.directives', []).
                     scope.onPermissionChange({ 'permissions': scope.perms });
                 };
             }
-        }
+        };
     });

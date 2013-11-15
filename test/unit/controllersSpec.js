@@ -107,12 +107,13 @@ describe('AuthenticationController', function () {
         });
     }));
 
-    it('should mask the password as it is typed', (function () {
-        scope.maskPassword("12345");
-        expect(scope.maskedPassword).toEqual("****5");
-        timeout.flush();
-        expect(scope.maskedPassword).toEqual("*****");
-    }));
+//    refactored to use a directive for reusability
+//    it('should mask the password as it is typed', (function () {
+//        scope.maskPassword("12345");
+//        expect(scope.maskedPassword).toEqual("****5");
+//        timeout.flush();
+//        expect(scope.maskedPassword).toEqual("*****");
+//    }));
 
     it('should log you in properly', (function () {
         scope.login("test@test.com", "mypass");

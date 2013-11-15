@@ -3,7 +3,7 @@
 <p>
     <input ng-model="username">{{ username }}
     <br/>
-    <input ng-model="password" type="password" ng-change="maskPassword(password)">{{ maskedPassword }}
+    <input ng-model="password" type="password"> <span masked-password pwd="password"></span>
     <br/>
     <button ng-click="login(username, password)">Authenticate</button>
     <br/>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="app/js"/>
+	<classpathentry kind="src" path="app/lib/angular"/>
+	<classpathentry kind="src" path="config"/>
+	<classpathentry kind="src" path="scripts"/>
+	<classpathentry kind="src" path="test/e2e"/>
+	<classpathentry kind="src" path="test/lib/angular"/>
+	<classpathentry kind="src" path="test/unit"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
