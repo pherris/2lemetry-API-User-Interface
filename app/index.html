@@ -1,22 +1,46 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en" ng-app="2lemetryApiV2">
-<head>
-  <meta charset="utf-8">
-  <title>M2M Administration</title>
-  <link rel="stylesheet" href="css/app.css"/>
+  <head>
+    <meta charset="utf-8">
+    <title>2lemetry Account Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="API for managing 2lemetry accounts">
+    <meta name="author" content="Andrew Ralston">
+    
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="assets/css/justified-nav.css" rel="stylesheet">
+    
+    <link href="css/app.css" rel="stylesheet">
+    
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
 </head>
 <body ng-init="">
-  <ul class="menu">
-      <li><a href="#/authenticate">Login Screen</a></li>
-      <li><a href="#/listTopics">Topics</a></li>
-      <li><a href="#/accounts">Accounts</a></li>
-      <li><a href="#/createAccount">New Account</a></li>
-  </ul>
 
-  <div ng-view></div>
-  <br/>
-  <div>M2M Administration: v<span app-version></span></div>
+    <div class="container">
 
+      <div class="masthead">
+        <h2 class="text-muted">2lemetry Account Administration</h2>
+        <ul class="nav nav-justified">
+          <!-- <li class="active"><a href="#">Home</a></li> -->
+            <li><a href="#/authenticate">Login</a></li>
+      		<li><a href="#/listTopics">Topics</a></li>
+      		<li><a href="#/accounts">Manage Account</a></li>
+      		<li><a href="#/createAccount">Create Account</a></li>       
+        </ul>
+      </div>
+	  <div ng-view></div>
+      <div class="footer">
+        <p>M2M Administration: v<span app-version></span></p>
+      </div>
+    </div>
+    
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
   -->
@@ -27,5 +51,6 @@
   <script src="js/filters.js"></script>
   <script src="js/directives.js"></script>
   <script src="lib/angular/angular-resource.js"></script>
+
 </body>
 </html>

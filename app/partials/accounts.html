@@ -1,64 +1,76 @@
-<h2>Account Management</h2>
-<div style="float:right; width:50%;">
-    Show Details: <input type="checkbox" ng-model="showUserDetails">
-    <div ng-show="showUserDetails">
+<!-- <div class="jumbotron">
+
+</div> -->
+      
+<div class="row">
+  <div class="col-lg-12">
+	<h3 class="text-muted">Account Management</h3>
+	<div style="float:right; width:50%;">
+	    Show Details: <input type="checkbox" ng-model="showUserDetails">
+	    <div ng-show="showUserDetails">
+		    <ul>
+		        <li>
+		            <strong>acl :</strong> {{ account.aclid }}
+		        </li>
+		        <li>
+		            <strong>attributes :</strong>{{ account.attributes }}
+		        </li>
+		        <li>
+		            <strong>row key :</strong> {{ account.rowkey }}
+		        </li>
+		    </ul>
+		    <strong>New Password :</strong> <input type="password" ng-model="newPwd"> <span masked-password pwd="newPwd"></span>
+		    <br/>
+		    <strong>Confirm Password :</strong> <input type="password" ng-model="newPwd2"> <span masked-password pwd="newPwd2"></span>
+		    <br/>
+		    <div ng-show="newPwd.length > 0 && newPwd === newPwd2">
+			    <button class="btn btn-primary" ng-click="changePassword(newPwd, account.rowkey)">SAVE</button>
+			</div>
+			<div ng-show="newPwd !== newPwd2">
+			    Passwords do not match
+			</div>
+	    </div>
+	</div>
+	<div style="width:50%;">
+		<p>
+	    	Email: <input ng-model="email">
+	    </p>
+	    <p>
+			<button class="btn btn-primary" ng-click="findUser(email)">SEARCH</button>
+		</p>
 	    <ul>
 	        <li>
-	            <strong>acl :</strong> {{ account.aclid }}
+	            <strong>email :</strong> {{ account.email }}
 	        </li>
 	        <li>
-	            <strong>attributes :</strong>{{ account.attributes }}
+	            <strong>username :</strong> {{ account.username }}
 	        </li>
 	        <li>
-	            <strong>row key :</strong> {{ account.rowkey }}
+	            <strong>domain :</strong> {{ account.domain }}
+	        </li>
+	        <li>
+	            <strong>active :</strong> {{ account.active }}
+	        </li>
+	        <li>
+	            <strong>creation :</strong> {{ account.creation | date:'short' }}
 	        </li>
 	    </ul>
-	    <strong>New Password :</strong> <input type="password" ng-model="newPwd"> <span masked-password pwd="newPwd"></span>
-	    <br/>
-	    <strong>Confirm Password :</strong> <input type="password" ng-model="newPwd2"> <span masked-password pwd="newPwd2"></span>
-	    <br/>
-	    <div ng-show="newPwd.length > 0 && newPwd === newPwd2">
-		    <button ng-click="changePassword(newPwd, account.rowkey)">SAVE</button>
-		</div>
-		<div ng-show="newPwd !== newPwd2">
-		    Passwords do not match
-		</div>
-    </div>
+	</div>
+	<h3 class="text-muted">Account Permissions</h3>
+	<p>Current permissions (if any) below:</p>
+	<ul>
+	    <li ng-repeat="(key, data) in acl.attributes">
+	        <p><strong>{{ key }}</strong>: {{ data }} <a ng-click="removeTopicPermissions(key)">X</a></p>
+	
+	        <div topic-permissions permissions="data" topic="key"
+	             on-permission-change="saveUpdatedPermissions(permissions)"></div>
+	    </li>
+	</ul>
+	<h3 class="text-muted">Add Permission</h3>
+	Default permissions are 'get' only.
+	<br/>
+	{{ domain.rowkey }}/<input ng-model="newTopic"/>
+	<br/>
+	<button class="btn btn-primary" ng-click="saveNewPermissions(newTopic)">SAVE</button>
+  </div>
 </div>
-<div style="width:50%;">
-    <input ng-model="email">
-    <button ng-click="findUser(email)">SEARCH</button>
-    <ul>
-        <li>
-            <strong>email :</strong> {{ account.email }}
-        </li>
-        <li>
-            <strong>username :</strong> {{ account.username }}
-        </li>
-        <li>
-            <strong>domain :</strong> {{ account.domain }}
-        </li>
-        <li>
-            <strong>active :</strong> {{ account.active }}
-        </li>
-        <li>
-            <strong>creation :</strong> {{ account.creation | date:'short' }}
-        </li>
-    </ul>
-</div>
-<h2>Account Permissions</h2>
-<ul>
-    <li ng-repeat="(key, data) in acl.attributes">
-        <p><strong>{{ key }}</strong>: {{ data }} <a ng-click="removeTopicPermissions(key)">X</a></p>
-
-        <div topic-permissions permissions="data" topic="key"
-             on-permission-change="saveUpdatedPermissions(permissions)"></div>
-    </li>
-</ul>
-<h3>Add Permission</h3>
-Default permissions are 'get' only.
-<br/>
-{{ domain.rowkey }}/<input ng-model="newTopic"/>
-<br/>
-<button ng-click="saveNewPermissions(newTopic)">SAVE</button>
-

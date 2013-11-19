@@ -1,14 +1,17 @@
-<h2>M2M Authentication</h2>
-<p>Please enter your 2lemetry credentials to begin using the administration application.</p>
-<p>
-    <input ng-model="username">{{ username }}
-    <br/>
-    <input ng-model="password" type="password"> <span masked-password pwd="password"></span>
-    <br/>
-    <button ng-click="login(username, password)">Authenticate</button>
-    <br/>
-    <h3>Your Token: {{ token || 'Not Authorized' }}</h3>
-    <ul>
-        <li>License Usage: {{ domain.activedlicenses | number }} / {{ domain.licenselimit | number }}</li>
-    </ul>
-</p>
+<!-- <div class="jumbotron">
+
+</div> -->
+      
+<div class="row">
+  <div class="col-lg-12">
+    <h3 class="text-muted">Authentication</h3>
+    <p>Login to manage your account. Your session will be active for three hours.</p>
+    <p>Username: <input ng-model="username">{{ username }}</p>
+    <p>Password: <input ng-model="password" type="password"> <span masked-password pwd="password"></span></p>
+    <p><button class="btn btn-primary" ng-click="login(username, password)">Authenticate</button></p>
+	<ul>
+	    <li>License Usage: {{ domain.activedlicenses | number }} / {{ domain.licenselimit | number }}</li>
+	    <li>Token: {{ token || 'Not Authorized' }} </li>
+	</ul>
+  </div>
+</div>
