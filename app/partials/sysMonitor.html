@@ -1,0 +1,19 @@
+
+<div class="row">
+  <div class="col-lg-12">
+    <h3 class="text-muted">Current Subscriptions</h3>
+    <p>Subscription lists are pushed to the {DOMAIN}/$SYS/subscriptions topic. The list below is updated as they change.</p>
+    <p>
+    	<ul>
+    		<li ng-repeat="(clientId, subscription) in subscriptions">
+				<strong>{{ clientId }}</strong>
+				<ul ng-repeat="details in subscription">
+					<li>{{ details.topic }}</li>
+					<li>QOS: {{ details.qos }}</li>
+					<li>CleanSession: {{ details.cleanSession }}</li>
+				</ul>
+    		</li>
+		</ul>
+	</p>
+  </div>
+</div>

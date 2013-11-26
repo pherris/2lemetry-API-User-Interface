@@ -118,3 +118,19 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
 
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
+
+angular.module('2lemetryApiV2.controllers').controller('SysController', ['$scope', 'm2mSocket', function ($scope, m2mSocket) {
+	m2mSocket.on('data', function (data) {
+		if (!data) {
+			return;
+		}
+		// assign different types of data to different models
+		if (data.topic.indexOf('subscriptions') > 0) {
+			if ($scope.subscriptions !== data.message) {
+				$scope.subscriptions = data.message;
+			}
+		} else {
+			console.log("data: " + JSON.stringify(data));
+		}
+	});
+}]);

@@ -32,7 +32,8 @@
             <li><a href="#/authenticate">Login</a></li>
       		<li><a href="#/listTopics">Topics</a></li>
       		<li><a href="#/accounts">Manage Account</a></li>
-      		<li><a href="#/createAccount">Create Account</a></li>       
+      		<li><a href="#/createAccount">Create Account</a></li>
+      		<li><a href="#/sys">Monitor</a></li>
         </ul>
       </div>
 	  <div ng-view></div>
@@ -51,6 +52,8 @@
   <script src="js/filters.js"></script>
   <script src="js/directives.js"></script>
   <script src="lib/angular/angular-resource.js"></script>
-
+  <script type="text/javascript" src="http://socketmq.m2m.io/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="http://socketmq.m2m.io/eventemitter-4.0.3.min.js"></script>
+  <script type="text/javascript" src="http://socketmq.m2m.io/socketmq-1.0.1.js"></script>    
 </body>
 </html>

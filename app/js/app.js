@@ -9,5 +9,6 @@ angular.module('2lemetryApiV2', ['2lemetryApiV2.filters', '2lemetryApiV2.service
         $routeProvider.when('/accounts/:email', {templateUrl: 'partials/accounts.html', controller: 'AccountController'});
         $routeProvider.when('/accounts', {templateUrl: 'partials/accounts.html', controller: 'AccountController'});
         $routeProvider.when('/createAccount', {templateUrl: 'partials/createAccount.html', controller: 'CreateAccountController'});
+        $routeProvider.when('/sys', {templateUrl: 'partials/sysMonitor.html', controller: 'SysController'});
         $routeProvider.otherwise({redirectTo: '/authenticate'});
   }]);

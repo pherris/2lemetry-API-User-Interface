@@ -88,3 +88,58 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
         Domain: $resource('https://api.m2m.io/2/account/domain/', {})
     };
 }]);
+
+serviceModule.factory('m2mSocket', ['$rootScope', function ($rootScope) {
+	var domain = "com.peoplenetonline";// PersistedData.getDataSet('Domain');
+	var socket = new SocketMQ({
+        username:       'ro@peoplenetonline.com',
+        md5Password:    '0cdeb8a5574186ad44f5d5b52a9dc348',
+        subscribe: [{
+            topic: [domain + '/$SYS/#'],
+            qos: 0
+        }],
+        ping: true
+    });
+	
+	socket.on('error', function(error) {
+         console.log('----- error -----');
+         console.log(JSON.stringify(error));
+    });
+	socket.on('connected', function() {
+        console.log('----- connected -----');
+    });
+    socket.on('subscribed', function(subscribed) {
+        console.log('----- subscribed -----');
+        console.log(JSON.stringify(subscribed));
+    });
+    socket.on('unsubscribed', function(subscribed) {
+        console.log('----- unsubscribed -----');
+        console.log(JSON.stringify(subscribed));
+    });
+    socket.on('disconnected', function() {
+        console.log('----- disconnected -----');
+    });
+
+    socket.connect();
+
+    return {
+		on: function (eventName, callback) {
+			socket.on(eventName, function () {  
+		        var args = arguments;
+		        $rootScope.$apply(function () {
+		          callback.apply(socket, args);
+		        });
+			});
+	    },
+	    emit: function (eventName, data, callback) {
+	    	socket.emit(eventName, data, function () {
+		        var args = arguments;
+		        $rootScope.$apply(function () {
+		          if (callback) {
+		            callback.apply(socket, args);
+		          }
+		        });
+	    	});
+	    }
+    };
+}]);
