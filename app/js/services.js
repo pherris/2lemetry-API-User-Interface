@@ -89,40 +89,62 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
     };
 }]);
 
-serviceModule.factory('m2mSocket', ['$rootScope', function ($rootScope) {
-	var domain = "com.peoplenetonline";// PersistedData.getDataSet('Domain');
-	var socket = new SocketMQ({
-        username:       'ro@peoplenetonline.com',
-        md5Password:    '0cdeb8a5574186ad44f5d5b52a9dc348',
-        subscribe: [{
-            topic: [domain + '/$SYS/#'],
-            qos: 0
-        }],
-        ping: true
-    });
+serviceModule.factory('m2mSocket', ['$rootScope', 'PersistedData', function ($rootScope, PersistedData) {
+	var socket;
 	
-	socket.on('error', function(error) {
-         console.log('----- error -----');
-         console.log(JSON.stringify(error));
-    });
-	socket.on('connected', function() {
-        console.log('----- connected -----');
-    });
-    socket.on('subscribed', function(subscribed) {
-        console.log('----- subscribed -----');
-        console.log(JSON.stringify(subscribed));
-    });
-    socket.on('unsubscribed', function(subscribed) {
-        console.log('----- unsubscribed -----');
-        console.log(JSON.stringify(subscribed));
-    });
-    socket.on('disconnected', function() {
-        console.log('----- disconnected -----');
-    });
-
-    socket.connect();
-
-    return {
+	function connect() {
+		var domain = PersistedData.getDataSet('Domain').rowkey;
+		// TODO, use api key to authenticate.
+		var username = PersistedData.getDataSet('username');
+		var password = PersistedData.getDataSet('password');
+		debugger;
+		socket = new SocketMQ({
+			username:       username,
+	        md5Password:    md5(password),
+	        subscribe: [{
+	            topic: [domain + '/$SYS/#'],
+	            qos: 0
+	        }],
+	        ping: true
+	    });
+		
+		socket.on('error', function(error) {
+	         console.log('----- error -----');
+	         console.log(JSON.stringify(error));
+	    });
+		socket.on('connected', function() {
+	        console.log('----- connected -----');
+	    });
+	    socket.on('subscribed', function(subscribed) {
+	        console.log('----- subscribed -----');
+	        console.log(JSON.stringify(subscribed));
+	    });
+	    socket.on('unsubscribed', function(subscribed) {
+	        console.log('----- unsubscribed -----');
+	        console.log(JSON.stringify(subscribed));
+	    });
+	    socket.on('disconnected', function() {
+	        console.log('----- disconnected -----');
+	    });
+	
+	    socket.connect();
+	    
+	    setTimeout(function () { 
+	    	var mySocket = socket;
+	    	var rootScope = $rootScope;
+	    	if (mySocket.conn) {
+	    		rootScope.$emit("sysConnected");
+	    	}
+    	}, 1000);
+	}
+	
+	if (PersistedData.getDataSet('Domain') && PersistedData.getDataSet('username') && PersistedData.getDataSet('password')) {
+		connect();
+	} else {
+		$rootScope.$on('authenticated', function () { connect(); });
+	}
+	
+	return {
 		on: function (eventName, callback) {
 			socket.on(eventName, function () {  
 		        var args = arguments;

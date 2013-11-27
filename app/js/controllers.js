@@ -4,9 +4,12 @@
 
 var myApp = angular.module('2lemetryApiV2.controllers', []);
 
-angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $http, $timeout, AuthService, m2m, PersistedData) {
+angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $rootScope, $http, $timeout, AuthService, m2m, PersistedData) {
     // get token to use for duration of session
     $scope.login = function (username, password) {
+    	// TODO: 2lemetry to implement change to allow authentication to broker via websockets with api key
+    	PersistedData.setDataSet('username', username);
+    	PersistedData.setDataSet('password', password);
         var onAuthOK = function (a) {
             PersistedData.setDataSet('BearerToken', a);
             $scope.token = a.token;
@@ -17,14 +20,16 @@ angular.module('2lemetryApiV2.controllers').controller('AuthenticationController
             $scope.domain = m2m.Domain.get(function () {
                 PersistedData.setDataSet('Domain', $scope.domain);
             });
-        }
+            
+            $rootScope.$emit('authenticated');
+        };
 
         var onAuthKO = function (a) {
             console.log("login failed");
         };
 
         AuthService.auth(username, password, onAuthOK, onAuthKO);
-    }
+    };
 
     var authInfo = PersistedData.getDataSet('BearerToken');
     if (authInfo) {
@@ -119,18 +124,28 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('SysController', ['$scope', 'm2mSocket', function ($scope, m2mSocket) {
-	m2mSocket.on('data', function (data) {
-		if (!data) {
-			return;
-		}
-		// assign different types of data to different models
-		if (data.topic.indexOf('subscriptions') > 0) {
-			if ($scope.subscriptions !== data.message) {
-				$scope.subscriptions = data.message;
+angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', function ($rootScope, $scope, m2mSocket) {
+	$rootScope.$on('sysConnected', function () {
+		m2mSocket.on('data', function (data) {
+			console.log(JSON.stringify(data));
+			if (!data) {
+				return;
 			}
-		} else {
-			console.log("data: " + JSON.stringify(data));
-		}
+			// assign different types of data to different models
+			if (data.topic.indexOf('subscriptions') > 0) {
+				if ($scope.subscriptions !== data.message) {
+					$scope.subscriptions = data.message;
+				}
+			} else if (data.topic.indexOf('connect') > 0 ||
+					data.topic.indexOf('lostconnect') > 0 || 
+					data.topic.indexOf('disconnect') > 0) {
+				data.message.type = data.topic.substr(data.topic.lastIndexOf("/") + 1, data.topic.length);
+				$scope.connectLog = [data.message].concat($scope.connectLog);
+			} else if (data.topic.indexOf('subscribe-errors') > 0) {
+				$scope.errorLog = [data.message].concat($scope.errorLog);
+			} else {
+				console.log("data: " + JSON.stringify(data));
+			}
+		});
 	});
 }]);
