@@ -97,7 +97,7 @@ serviceModule.factory('m2mSocket', ['$rootScope', 'PersistedData', function ($ro
 		// TODO, use api key to authenticate.
 		var username = PersistedData.getDataSet('username');
 		var password = PersistedData.getDataSet('password');
-		debugger;
+		
 		socket = new SocketMQ({
 			username:       username,
 	        md5Password:    md5(password),

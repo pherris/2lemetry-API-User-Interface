@@ -141,6 +141,7 @@ angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootS
 					data.topic.indexOf('disconnect') > 0) {
 				data.message.type = data.topic.substr(data.topic.lastIndexOf("/") + 1, data.topic.length);
 				$scope.connectLog = [data.message].concat($scope.connectLog);
+				
 			} else if (data.topic.indexOf('subscribe-errors') > 0) {
 				$scope.errorLog = [data.message].concat($scope.errorLog);
 			} else {
@@ -148,4 +149,7 @@ angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootS
 			}
 		});
 	});
+	$scope.connectGridOptions = { data: 'connectLog' };
+	$scope.errorGridOptions = { data: 'errorLog' };
+	$scope.subscriptionGridOptions = { data: 'subscriptions' };
 }]);

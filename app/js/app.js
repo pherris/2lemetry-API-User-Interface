@@ -2,7 +2,7 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('2lemetryApiV2', ['2lemetryApiV2.filters', '2lemetryApiV2.services', '2lemetryApiV2.directives', '2lemetryApiV2.controllers']).
+angular.module('2lemetryApiV2', ['2lemetryApiV2.filters', '2lemetryApiV2.services', '2lemetryApiV2.directives', '2lemetryApiV2.controllers', 'ngGrid']).
   config(['$routeProvider', function($routeProvider) {
         $routeProvider.when('/authenticate', {templateUrl: 'partials/login.html', controller: 'AuthenticationController'});
         $routeProvider.when('/listTopics', {templateUrl: 'partials/listTopics.html', controller: 'ListTopicsController'});
