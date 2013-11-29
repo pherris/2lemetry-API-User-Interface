@@ -125,6 +125,16 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
 }]);
 
 angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', function ($rootScope, $scope, m2mSocket) {
+	var flattenSubscriptions = function (clientId, subscriptions) { 
+		var subscription = new Array();
+        for (var i = 0; i < subscriptions.length; i++) {
+        	var sub = subscriptions[i];
+        	sub["clientId"] = clientId;
+        	subscription.push(sub);
+        }
+        return subscription;
+    };
+	
 	$rootScope.$on('sysConnected', function () {
 		m2mSocket.on('data', function (data) {
 			console.log(JSON.stringify(data));
@@ -133,8 +143,14 @@ angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootS
 			}
 			// assign different types of data to different models
 			if (data.topic.indexOf('subscriptions') > 0) {
-				if ($scope.subscriptions !== data.message) {
-					$scope.subscriptions = data.message;
+				if ($scope.subscriptionsRaw !== data.message) {
+					var subscriptions = new Array();
+					
+					for (var clientId in data.message) { 
+						subscriptions = subscriptions.concat(flattenSubscriptions(clientId, data.message[clientId]));
+					}
+					$scope.subscriptions = subscriptions;
+					$scope.subscriptionsRaw = data.message;
 				}
 			} else if (data.topic.indexOf('connect') > 0 ||
 					data.topic.indexOf('lostconnect') > 0 || 
