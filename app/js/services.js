@@ -89,62 +89,59 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
     };
 }]);
 
-serviceModule.factory('m2mSocket', ['$rootScope', 'PersistedData', function ($rootScope, PersistedData) {
-	var socket;
-	
-	function connect() {
-		var domain = PersistedData.getDataSet('Domain').rowkey;
-		// TODO, use api key to authenticate.
-		var username = PersistedData.getDataSet('username');
-		var password = PersistedData.getDataSet('password');
-		
-		socket = new SocketMQ({
-			username:       username,
-	        md5Password:    md5(password),
-	        subscribe: [{
-	            topic: [domain + '/$SYS/#'],
-	            qos: 0
-	        }],
-	        ping: true
-	    });
-		
-		socket.on('error', function(error) {
-	         console.log('----- error -----');
-	         console.log(JSON.stringify(error));
-	    });
-		socket.on('connected', function() {
-	        console.log('----- connected -----');
-	    });
-	    socket.on('subscribed', function(subscribed) {
-	        console.log('----- subscribed -----');
-	        console.log(JSON.stringify(subscribed));
-	    });
-	    socket.on('unsubscribed', function(subscribed) {
-	        console.log('----- unsubscribed -----');
-	        console.log(JSON.stringify(subscribed));
-	    });
-	    socket.on('disconnected', function() {
-	        console.log('----- disconnected -----');
-	    });
-	
-	    socket.connect();
-	    
-	    setTimeout(function () { 
-	    	var mySocket = socket;
-	    	var rootScope = $rootScope;
-	    	if (mySocket.conn) {
-	    		rootScope.$emit("sysConnected");
-	    	}
-    	}, 1000);
-	}
-	
-	if (PersistedData.getDataSet('Domain') && PersistedData.getDataSet('username') && PersistedData.getDataSet('password')) {
-		connect();
-	} else {
-		$rootScope.$on('authenticated', function () { connect(); });
-	}
+serviceModule.factory('m2mSocket', ['$rootScope', '$q', '$timeout', function ($rootScope, $q, $timeout) {
+	var socket, receivedData = [];
 	
 	return {
+	    connected: function () {
+	        return socket && socket.conn;
+	    },
+		connect: function (username, password, domain) {
+		    var deferred = $q.defer();
+		    
+		    if (socket && socket.conn) {
+		        console.log("already connected");
+		        deferred.resolve('connected');
+		        return deferred.promise;
+		    }
+			
+		    socket = new SocketMQ({
+				username:       username,
+		        md5Password:    md5(password),
+		        subscribe: [{
+		            topic: [domain + '/$SYS/#'],
+		            qos: 0
+		        }],
+		        ping: true
+		    });
+			
+			socket.on('error', function(error) {
+		         console.log('----- error -----');
+		         console.log(JSON.stringify(error));
+		    });
+			socket.on('connected', function() {
+		        console.log('----- connected -----');
+		    });
+		    socket.on('subscribed', function(subscribed) {
+		        console.log('----- subscribed -----');
+		        console.log(JSON.stringify(subscribed));
+		    });
+		    socket.on('unsubscribed', function(subscribed) {
+		        console.log('----- unsubscribed -----');
+		        console.log(JSON.stringify(subscribed));
+		    });
+		    socket.on('disconnected', function() {
+		        console.log('----- disconnected -----');
+		    });
+		
+		    socket.connect();
+		    
+		    $timeout(function() {
+		        deferred.resolve('connected');
+		    }, 1000);
+		    
+		    return deferred.promise;
+        },
 		on: function (eventName, callback) {
 			socket.on(eventName, function () {  
 		        var args = arguments;
@@ -162,6 +159,15 @@ serviceModule.factory('m2mSocket', ['$rootScope', 'PersistedData', function ($ro
 		          }
 		        });
 	    	});
+	    }, 
+	    /**
+         * Keeps data received for page reloads.
+         */
+	    cache: function (name, value) {
+	        return receivedData[name] = value;
+	    },
+	    getCache: function (name) {
+	        return receivedData[name];
 	    }
     };
 }]);

@@ -19,9 +19,8 @@ angular.module('2lemetryApiV2.controllers').controller('AuthenticationController
 
             $scope.domain = m2m.Domain.get(function () {
                 PersistedData.setDataSet('Domain', $scope.domain);
+                $scope.$emit('authenticated');
             });
-            
-            $rootScope.$emit('authenticated');
         };
 
         var onAuthKO = function (a) {
@@ -124,8 +123,8 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', function ($rootScope, $scope, m2mSocket) {
-	var flattenSubscriptions = function (clientId, subscriptions) { 
+angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', 'PersistedData', function ($rootScope, $scope, m2mSocket, PersistedData) {
+    var flattenSubscriptions = function (clientId, subscriptions) { 
 		var subscription = new Array();
         for (var i = 0; i < subscriptions.length; i++) {
         	var sub = subscriptions[i];
@@ -133,39 +132,73 @@ angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootS
         	subscription.push(sub);
         }
         return subscription;
+    }, subscribe = function () {
+	    m2mSocket.on('data', function (data) {
+            // console.log(JSON.stringify(data));
+            if (!data) {
+                return;
+            }
+            // assign different types of data to different models
+            if (data.topic.indexOf('subscriptions') > 0) {
+                if (m2mSocket.getCache('subscriptionsRaw') !== data.message) {
+                    var subscriptions = new Array();
+                    
+                    for (var clientId in data.message) { 
+                        subscriptions = subscriptions.concat(flattenSubscriptions(clientId, data.message[clientId]));
+                    } 
+                    m2mSocket.cache('subscriptions', subscriptions);
+                    m2mSocket.cache('subscriptionsRaw', data.message);
+                }
+            } else if (data.topic.indexOf('connect') > 0 ||
+                    data.topic.indexOf('lostconnect') > 0 || 
+                    data.topic.indexOf('disconnect') > 0) {
+                data.message.type = data.topic.substr(data.topic.lastIndexOf("/") + 1, data.topic.length);
+                m2mSocket.cache('connectLog', [data.message].concat(m2mSocket.getCache('connectLog')));
+            } else if (data.topic.indexOf('subscribe-errors') > 0) {
+                $scope.errorLog = [data.message].concat($scope.errorLog);
+            } else {
+                console.log("data: " + JSON.stringify(data));
+            }
+            
+            $scope.subscriptions = m2mSocket.getCache('subscriptions');
+            $scope.connectLog = m2mSocket.getCache('connectLog');
+        });
+	}, authenticate = function () { 
+        m2mSocket.connect(PersistedData.getDataSet('username'), 
+                PersistedData.getDataSet('password'), 
+                PersistedData.getDataSet('Domain').rowkey).then(subscribe); 
     };
+    		
+	if (PersistedData.getDataSet('Domain') && PersistedData.getDataSet('username') && PersistedData.getDataSet('password')) {
+		authenticate();
+	} else {
+		$scope.$on('authenticated', authenticate);
+	}
 	
-	$rootScope.$on('sysConnected', function () {
-		m2mSocket.on('data', function (data) {
-			console.log(JSON.stringify(data));
-			if (!data) {
-				return;
-			}
-			// assign different types of data to different models
-			if (data.topic.indexOf('subscriptions') > 0) {
-				if ($scope.subscriptionsRaw !== data.message) {
-					var subscriptions = new Array();
-					
-					for (var clientId in data.message) { 
-						subscriptions = subscriptions.concat(flattenSubscriptions(clientId, data.message[clientId]));
-					}
-					$scope.subscriptions = subscriptions;
-					$scope.subscriptionsRaw = data.message;
-				}
-			} else if (data.topic.indexOf('connect') > 0 ||
-					data.topic.indexOf('lostconnect') > 0 || 
-					data.topic.indexOf('disconnect') > 0) {
-				data.message.type = data.topic.substr(data.topic.lastIndexOf("/") + 1, data.topic.length);
-				$scope.connectLog = [data.message].concat($scope.connectLog);
-				
-			} else if (data.topic.indexOf('subscribe-errors') > 0) {
-				$scope.errorLog = [data.message].concat($scope.errorLog);
-			} else {
-				console.log("data: " + JSON.stringify(data));
-			}
-		});
-	});
-	$scope.connectGridOptions = { data: 'connectLog' };
-	$scope.errorGridOptions = { data: 'errorLog' };
-	$scope.subscriptionGridOptions = { data: 'subscriptions' };
+	// TODO cleaner association between model and data cached in service
+	$scope.subscriptions = m2mSocket.getCache('subscriptions');
+	$scope.connectLog = m2mSocket.getCache('connectLog');
+	
+	$scope.connectGridOptions = { 
+	        data: 'connectLog',
+	        showFilter: true,
+            enableColumnResize: true,
+            columnDefs: [{ field: 'time', displayName: 'Time', width: 100, resizable: true },
+                         { field: 'clientid', displayName: 'Client Id', resizable: true },
+                         { field: 'type', displayName: 'Event', width: 100, resizable: true }] 
+	};
+	$scope.errorGridOptions = { 
+	        data: 'errorLog',
+	        showFilter: true,
+	        enableColumnResize: true
+	};
+	$scope.subscriptionGridOptions = { 
+	        data: 'subscriptions',
+	        showFilter: true,
+            enableColumnResize: true,
+	        columnDefs: [{ field: 'qos', displayName: 'QOS', width: 50, resizable: true },
+                         { field: 'topic', displayName: 'Topic', resizable: true },
+                         { field: 'cleanSession', displayName: 'Clean Session?', width: 150, resizable: true },
+                         { field: 'clientId', displayName: 'Client Id', width: 250, resizable: true }]
+    };
 }]);
