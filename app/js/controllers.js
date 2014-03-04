@@ -92,6 +92,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         if (confirmRemove) {
             m2m.ACL.remove({ topic: topic, acl: $scope.account.aclid }, function () {
                 // update list.
+                console.log("removing topic: " + topic);
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
             }, function () {
                 console.log("failed removing topic permission");
@@ -103,7 +104,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         if (topic.charAt(0) == "/") {
             topic = topic.substr(1, topic.length);
         }
-        return topic.toUpperCase();
+        return topic.toLowerCase();
         // electing not to validate on domain here since someone may want a topic like /domain/domain/topic
     }
 

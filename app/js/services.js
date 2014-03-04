@@ -77,20 +77,22 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
                 }
             }
         }),
-        ACL: $resource('https://api.m2m.io/2/account/domain/:domain/acl/:acl', {acl: '@acl', domain: function () {
+        ACL: $resource('https://api.m2m.io/2/account/domain/:domain/acl/:acl/:remove', {acl: '@acl', domain: function () {
             var domain = PersistedData.getDataSet('Domain');
             return domain.rowkey;
         }}, {
             permissions: {method: 'GET', isArray: false},
             save: { method: 'PUT', params: { get: '@get', post: '@post', delete: '@delete', publish: '@pub', subscribe: '@sub', topic: '@topic' }},
-            remove: { method: 'PUT', params: { get: false, post: false, delete: false, publish: false, subscribe: false, topic: '@topic' }}
+            remove: { method: 'PUT', params: { topic: '@topic', remove: 'remove', api: true, m2m: true }} //url: 'https://api.m2m.io/2/account/domain/:domain/acl/:acl/remove?api=true&m2m=true'
         }),
         Domain: $resource('https://api.m2m.io/2/account/domain/', {})
     };
 }]);
 
 serviceModule.factory('m2mSocket', ['$rootScope', '$q', '$timeout', function ($rootScope, $q, $timeout) {
-	var socket, receivedData = [];
+	var MqttClientApp = {
+      client : new WebSocketClient('q.m2m.io', 8083, 'webMonitor')
+    },  receivedData = [];
 	
 	return {
 	    connected: function () {
@@ -104,6 +106,18 @@ serviceModule.factory('m2mSocket', ['$rootScope', '$q', '$timeout', function ($r
 		        deferred.resolve('connected');
 		        return deferred.promise;
 		    }
+
+            this.listeners.addListener('connect', function(host, port, clientId, username, password,
+                keepAlive, useSsl, cleanSession, lastWillTopic, lastWillMessage, lastWillQos, lastWillRetain) {
+                
+
+                MqttClientApp.client.addLastWillMessage(lastWillTopic, lastWillMessage,
+                    lastWillQos, lastWillRetain);
+
+                MqttClientApp.client.connect(username, password, keepAlive, useSsl, cleanSession, {});
+            });
+
+              
 			
 		    socket = new SocketMQ({
 				username:       username,
