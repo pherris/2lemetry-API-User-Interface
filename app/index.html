@@ -38,7 +38,7 @@
       		<li><a href="#/sys">Monitor</a></li>
         </ul>
       </div>
-	  <div ng-view></div>
+      <div ui-view></div>
       <div class="footer">
         <p>M2M Administration: v<span app-version></span></p>
       </div>
@@ -48,12 +48,13 @@
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
   -->
   <script src="lib/angular/angular.js"></script>
+  <script src="lib/angular/angular-resource.js"></script>
+  <script src="lib/angular-ui/angular-ui-router.js"></script>
   <script src="js/app.js"></script>
   <script src="js/services.js"></script>
   <script src="js/controllers.js"></script>
   <script src="js/filters.js"></script>
-  <script src="js/directives.js"></script>
-  <script src="lib/angular/angular-resource.js"></script>
+  <script src="js/directives.js"></script></script>
   <script src="lib/mqttws31.js"></script>
   <script src="lib/2lemetry/WebSocketClient.js"></script>  
   <script type="text/javascript" src="http://www.myersdaily.org/joseph/javascript/md5.js"></script>

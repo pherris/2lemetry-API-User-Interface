@@ -6,6 +6,7 @@ var myApp = angular.module('2lemetryApiV2.controllers', []);
 
 angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $rootScope, $http, $timeout, AuthService, m2m, PersistedData) {
     // get token to use for duration of session
+    console.log("bla...");
     $scope.login = function (username, password) {
     	// TODO: 2lemetry to implement change to allow authentication to broker via websockets with api key
     	PersistedData.setDataSet('username', username);
