@@ -15,8 +15,8 @@ var MqttClientApp = {};
 // MqttClientApp.listeners.emit('showAlert', "This application is intended to work with brokers that are compliant with the standard <a href=\"http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.javascript.git/tree/src/mqttws31.js\" target=\"_blank\">mqttws31.js file</a> provided by eclipse.org. It is not intended to proxy MQTT messages to noncompliant brokers");
 
 // Declare app level module which depends on filters, and services
-angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetryApiV2.services', '2lemetryApiV2.directives', '2lemetryApiV2.controllers', 'ngGrid']).
-  config(function($stateProvider, $urlRouterProvider) {
+angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetryApiV2.services', '2lemetryApiV2.directives', '2lemetryApiV2.controllers', 'ngGrid'])
+  .config(function($stateProvider, $urlRouterProvider) {
   //
   // For any unmatched url, redirect to /authenticate
   $urlRouterProvider.otherwise("/authenticate");
@@ -25,7 +25,12 @@ angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetry
   $stateProvider
     .state('authenticate', {
       url: "/authenticate",
+      controller: 'AuthenticationController', 
       templateUrl: "partials/login.html"
+    })
+    .state('listTopics', {
+      url: "/listTopics",
+      templateUrl: "partials/listTopics.html"
     })
   //   .state('state1.list', {
   //     url: "/list",
