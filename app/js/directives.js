@@ -89,13 +89,11 @@ angular.module('2lemetryApiV2.directives', []).
                 }
                 scope.perms['topic'] = scope.topic.substr(scope.topic.indexOf("/") + 1, scope.topic.length); //remove "{domain}/"
 
-
-                scope.toggle = function (perm, state) {
+                scope.toggle = function (perm) {
                     if (scope.readonly && scope.readonly === 'true') {
                         return;
                     }
                     scope.perms[perm] = !scope.perms[perm]; //shouldnt be necessary if the html was binding to the model but thats not happening for some reason.
-                    console.log(JSON.stringify(scope.perms));
                     //hand off to callback
                     scope.onPermissionChange({ 'permissions': scope.perms });
                 };
