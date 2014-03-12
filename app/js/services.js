@@ -72,7 +72,7 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
                     var domain = PersistedData.getDataSet('Domain');
                     return domain.rowkey;
                 }, clearAcl: true, email: '@email', password: '@password' },
-                isArray: true, // limits permissions
+                //isArray: true, // limits permissions
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                 }

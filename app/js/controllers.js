@@ -52,12 +52,14 @@ angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', [
     $scope.topicObject = m2m.Topics.get();
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', function ($scope, $location, m2m) {
+angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', 'errorService', function ($scope, $location, m2m, errorService) {
+    $scope.errors = errorService.get();
+
     $scope.createUser = function (email, password) {
         $scope.newAccount = m2m.AccountCreate.create({email: email, password: password }, function (value, responseHeaders) {
             $location.path("/accounts/" + email);
         }, function (httpResponse) {
-            $scope.error = httpResponse.data.message;
+            errorService.add(httpResponse.data.message);
         });
     }
 }]);
@@ -121,12 +123,6 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         topic = $scope.validateTopic(topic);
         m2m.ACL.save({ get: true, post: false, delete: false, pub: false, sub: false, topic: topic, acl: $scope.account.aclid }, function () {
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
-            $scope.acl.then(function () {
-                $scope.permLen = 0;
-                for (perm in $scope.acl.attributes) {
-                    $scope.permLen++;
-                }
-            });
         }, function () {
             console.log("failure: could not add");
         });
@@ -140,6 +136,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
     $scope.permLen = 0;
     $scope.$watch('acl.attributes', function () {
       if ($scope.acl && $scope.acl.attributes) {
+        $scope.permLen = 0; //reset
         for (var perm in $scope.acl.attributes) {
             $scope.permLen++;
         }
