@@ -130,6 +130,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
 
     if ($stateParams.email) {
         $scope.findUser($stateParams.email);
+        $scope.email = $stateParams.email;
     }
 
     //count current permissions for UI
