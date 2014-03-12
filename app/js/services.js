@@ -6,7 +6,8 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
-    value('version', '0.1.0').
+    value('version', '0.1.1').
+    value('domain', 'test').
     factory('AuthService',function ($http) {
         // $http is recommended for cases where you have to pass in variables (really) - or maybe I don't know what I'm doing...
         return {
@@ -86,6 +87,30 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
             remove: { method: 'PUT', params: { topic: '@topic', remove: 'remove', api: true, m2m: true }} //url: 'https://api.m2m.io/2/account/domain/:domain/acl/:acl/remove?api=true&m2m=true'
         }),
         Domain: $resource('https://api.m2m.io/2/account/domain/', {})
+    };
+}]);
+
+/**
+ * service to manage error messages
+ **/
+ serviceModule.factory('errorService', ['$interval', function ($interval) {
+    var errors = [];
+
+    $interval(function () {
+        for (var i = 0; i < errors.length; i++) {
+            if (errors[i].added < new Date().getTime() - 1000 * 3) {
+                errors.splice(i, 1); 
+            }
+        }
+    }, 2000);
+
+    return {
+        add: function (message) {
+            errors.push({ added: (new Date()).getTime(), msg: message });
+        }, 
+        get: function () {
+            return errors;
+        }
     };
 }]);
 

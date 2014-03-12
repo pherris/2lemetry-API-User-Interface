@@ -1,0 +1,11 @@
+<h4>MQTT <small>for direct MQTT interactions with the broker</small></h4>
+<div class="btn-group">
+  <button type="button" class="btn btn-default {{ perms.pub?'active':''}}" ng-click="toggle('pub')">Publish</button>
+  <button type="button" class="btn btn-default {{ perms.sub?'active':''}}" ng-click="toggle('sub')">Subscribe</button>
+</div>
+<h4>REST <small>for use with the REST API</small></h4>
+<div class="btn-group">
+  <button type="button" class="btn btn-default {{ perms.get?'active':''}}" ng-model="perms.get" ng-click="toggle('get')">Get</button>
+  <button type="button" class="btn btn-default {{ perms.post?'active':''}}" ng-click="toggle('post')">Post/Put</button>
+  <button type="button" class="btn btn-default {{ perms.delete?'active':''}}" ng-click="toggle('delete')">Delete</button>
+</div>

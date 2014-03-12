@@ -24,33 +24,26 @@ angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetry
   // Now set up the states
   $stateProvider
     .state('authenticate', {
-      url: "/authenticate",
+      url: '/authenticate',
       controller: 'AuthenticationController', 
-      templateUrl: "partials/login.html"
+      templateUrl: 'partials/login.html'
     })
     .state('listTopics', {
-      url: "/listTopics",
-      templateUrl: "partials/listTopics.html"
+      url: '/listTopics',
+      controller: 'ListTopicsController',
+      templateUrl: 'partials/listTopics.html'
     })
-  //   .state('state1.list', {
-  //     url: "/list",
-  //     templateUrl: "partials/state1.list.html",
-  //     controller: function($scope) {
-  //       $scope.items = ["A", "List", "Of", "Items"];
-  //     }
-  //   })
-  //   .state('state2', {
-  //     url: "/state2",
-  //     templateUrl: "partials/state2.html"
-  //   })
-  //   .state('state2.list', {
-  //     url: "/list",
-  //       templateUrl: "partials/state2.list.html",
-  //       controller: function($scope) {
-  //         $scope.things = ["A", "Set", "Of", "Things"];
-  //       }
-  //     })
+    .state('accounts', {
+      url: '/accounts/:email',
+      templateUrl: 'partials/accounts.html',
+      controller: 'AccountController'
+    })
+    .state('createAccount', {
+      url: '/createAccount',
+      templateUrl: 'partials/createAccount.html',
+      controller: 'CreateAccountController'
     });
+  });
 
   // config(['$routeProvider', function($routeProvider) {
   //       $routeProvider.when('/authenticate', {templateUrl: 'partials/login.html', controller: 'AuthenticationController' });

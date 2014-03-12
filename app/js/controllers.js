@@ -4,7 +4,7 @@
 
 var myApp = angular.module('2lemetryApiV2.controllers', []);
 
-angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $rootScope, $http, $timeout, AuthService, m2m, PersistedData) {
+angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', 'domain', function ($scope, $rootScope, $http, $timeout, AuthService, m2m, PersistedData, domain) {
     // get token to use for duration of session
     $scope.login = function (username, password) {
         if (!username || !password) {
@@ -23,6 +23,8 @@ angular.module('2lemetryApiV2.controllers').controller('AuthenticationController
 
             $scope.domain = m2m.Domain.get(function () {
                 PersistedData.setDataSet('Domain', $scope.domain);
+                domain = $scope.domain;
+
                 $scope.$emit('authenticated');
             });
         };
@@ -60,24 +62,27 @@ angular.module('2lemetryApiV2.controllers').controller('CreateAccountController'
     }
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$routeParams', 'm2m', 'PersistedData', function ($scope, $routeParams, m2m, PersistedData) {
-    // $scope.account = m2m.Account.get();
-	$scope.changePassword = function (newPassword, updatingRowkey) {
+angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$stateParams', 'm2m', 'PersistedData', 'errorService', function ($scope, $stateParams, m2m, PersistedData, errorService) {
+    $scope.changePassword = function (newPassword, updatingRowkey) {
         $scope.pwdChange = m2m.AccountPwd.change({ password: newPassword, rowkey: updatingRowkey }, function (value, responseHeaders) {
             $scope.account = value;
             $scope.newPwd = null;
             $scope.newPwd2 = null;
         }, function (httpResponse) {
-            $scope.error = httpResponse.data.message;
+            errorService.add(httpResponse.data.message);
         });
-    }
+    };
+
+    $scope.errors = errorService.get();
 	
     $scope.findUser = function (email) {
         $scope.account = m2m.Account.get({ 'email': email }, function () {
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
+            }, function () {
+                errorService.add('account not found');
             }
         );
-    }
+    };
 
     $scope.saveUpdatedPermissions = function (newPerm) {
 
@@ -86,7 +91,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         m2m.ACL.save(newPerm, function () {
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
         }, function () {
-            console.log("failure: could not save new permissions");
+            errorService.add("failure: could not save new permissions");
         });
     };
 
@@ -116,14 +121,30 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         topic = $scope.validateTopic(topic);
         m2m.ACL.save({ get: true, post: false, delete: false, pub: false, sub: false, topic: topic, acl: $scope.account.aclid }, function () {
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
+            $scope.acl.then(function () {
+                $scope.permLen = 0;
+                for (perm in $scope.acl.attributes) {
+                    $scope.permLen++;
+                }
+            });
         }, function () {
             console.log("failure: could not add");
         });
     }
 
-    if ($routeParams.email) {
-        $scope.findUser($routeParams.email);
+    if ($stateParams.email) {
+        $scope.findUser($stateParams.email);
     }
+
+    //count current permissions for UI
+    $scope.permLen = 0;
+    $scope.$watch('acl.attributes', function () {
+      if ($scope.acl && $scope.acl.attributes) {
+        for (var perm in $scope.acl.attributes) {
+            $scope.permLen++;
+        }
+      }
+    });
 
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
