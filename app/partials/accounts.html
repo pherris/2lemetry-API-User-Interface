@@ -7,9 +7,6 @@
 	<h3 class="text-muted">Account Management</h3>
 	<p>
   	Email: <input ng-model="email"> <button class="btn btn-primary" ng-click="findUser(email)">SEARCH</button>
-  	<div ng-repeat="error in errors">
-  		<span class="label label-danger">{{ error.msg }}</span>
-		</div>
 	</p>
 	<div ng-show="account && account.aclid">
 		<div class="panel panel-default" ng-repeat="(topic, permissions) in acl.attributes">

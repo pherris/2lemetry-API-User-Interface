@@ -52,36 +52,36 @@ angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', [
     $scope.topicObject = m2m.Topics.get();
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', 'errorService', function ($scope, $location, m2m, errorService) {
-    $scope.errors = errorService.get();
+angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', 'notificationService', function ($scope, $location, m2m, notificationService) {
+    $scope.notifications = notificationService.get();
 
     $scope.createUser = function (email, password) {
         $scope.newAccount = m2m.AccountCreate.create({email: email, password: password }, function (value, responseHeaders) {
             $location.path("/accounts/" + email);
         }, function (httpResponse) {
-            errorService.add(httpResponse.data.message);
+            notificationService.addDanger(httpResponse.data.message);
         });
     }
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$stateParams', 'm2m', 'PersistedData', 'errorService', function ($scope, $stateParams, m2m, PersistedData, errorService) {
+angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$stateParams', 'm2m', 'PersistedData', 'notificationService', function ($scope, $stateParams, m2m, PersistedData, notificationService) {
     $scope.changePassword = function (newPassword, updatingRowkey) {
         $scope.pwdChange = m2m.AccountPwd.change({ password: newPassword, rowkey: updatingRowkey }, function (value, responseHeaders) {
             $scope.account = value;
             $scope.newPwd = null;
             $scope.newPwd2 = null;
         }, function (httpResponse) {
-            errorService.add(httpResponse.data.message);
+            notificationService.addDanger(httpResponse.data.message);
         });
     };
 
-    $scope.errors = errorService.get();
+    $scope.notifications = notificationService.get();
 	
     $scope.findUser = function (email) {
         $scope.account = m2m.Account.get({ 'email': email }, function () {
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
             }, function () {
-                errorService.add('account not found');
+                notificationService.addDanger('account not found');
             }
         );
     };
@@ -93,7 +93,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         m2m.ACL.save(newPerm, function () {
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
         }, function () {
-            errorService.add("failure: could not save new permissions");
+            notificationService.addDanger("failure: could not save new permissions");
         });
     };
 

@@ -38,6 +38,11 @@
       		<li><a href="#/sys">Monitor</a></li>
         </ul>
       </div>
+      <div ng-repeat="notification in $root.notifications">
+        <div ng-repeat="note in notification">
+          <span class="label label-{{ note.type }}">{{ note.msg }}</span>
+        </div>
+      </div>
       <div ui-view></div>
       <div class="footer">
         <p>Domain: <span app-domain></span> - M2M Administration: v<span app-version></span></p>

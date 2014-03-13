@@ -62,7 +62,6 @@ angular.module('2lemetryApiV2.directives', []).
     directive('topicPermissions', [function () {
         return {
             restrict: 'E',
-            //require: 'ngModel',
             templateUrl: 'partials/topicPermissions.html',
             scope: {
                 permissions: '=',

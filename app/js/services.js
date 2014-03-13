@@ -93,23 +93,65 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
 /**
  * service to manage error messages
  **/
- serviceModule.factory('errorService', ['$interval', function ($interval) {
-    var errors = [];
+ serviceModule.factory('notificationService', ['$interval', '$rootScope', function ($interval, $rootScope) {
+    var cleanupInterval;
 
-    $interval(function () {
-        for (var i = 0; i < errors.length; i++) {
-            if (errors[i].added < new Date().getTime() - 1000 * 3) {
-                errors.splice(i, 1); 
+    $rootScope.notifications = { //mapped to bootstrap's css
+        'default': [],
+        'primary': [],
+        'success': [],
+        'info': [],
+        'warning': [],
+        'danger': []
+    };
+
+    //a little too clever for my own good here, watch how much we recurse....
+    $rootScope.$watch(function() { return $rootScope.notifications; }, function (newVal, oldVal) {
+        var start = false, 
+            polling = false, 
+            cleanup = function () {
+                for (var type in $rootScope.notifications) {
+                    for (var i = 0; i < $rootScope.notifications[type].length; i++) {
+                        if ($rootScope.notifications[type][i].added < new Date().getTime() - 1000 * 3) {
+                            $rootScope.notifications[type].splice(i, 1); 
+                        }
+                    }
+                }
+            };
+
+        if (newVal !== oldVal) {
+            for (var type in $rootScope.notifications) {
+                //if any notifications have a length, start timer
+                if ($rootScope.notifications[type].length > 0) {
+                    start = true;
+                    break;
+                }
+            }
+            if (start && !polling) {
+                console.log('start polling');
+                polling = false;
+                cleanupInterval = $interval(cleanup, 2000);
+            } else if (!start && polling) {
+                console.log('stop polling');
+                $interval.cancel(cleanupInterval);
             }
         }
-    }, 2000);
+    }, true);
 
+    //todo - add more addX helper methods
     return {
-        add: function (message) {
-            errors.push({ added: (new Date()).getTime(), msg: message });
+        addDanger: function (message) {
+            this.add('danger', message);
         }, 
+        add: function (type, message) {
+            $rootScope.notifications[type].push({ 
+                added: (new Date()).getTime(), 
+                msg: message, 
+                type: type 
+            });
+        },
         get: function () {
-            return errors;
+            return $rootScope.notifications;
         }
     };
 }]);
