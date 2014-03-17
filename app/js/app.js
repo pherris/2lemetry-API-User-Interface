@@ -45,6 +45,14 @@ angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetry
     });
   });
 
+angular.module('2lemetryApiV2').run(['AuthService', 'notificationService', function (AuthService, notificationService) {
+  if (AuthService.authFromLocalStorage()) { //adds authorization from local storage if present
+    notificationService.addSuccess('Authenticated');
+  } else {
+    //notificationService.addDanger('not auth');
+  }
+}]);
+
   // config(['$routeProvider', function($routeProvider) {
   //       $routeProvider.when('/authenticate', {templateUrl: 'partials/login.html', controller: 'AuthenticationController' });
   //       $routeProvider.when('/listTopics', {templateUrl: 'partials/listTopics.html', controller: 'ListTopicsController' });

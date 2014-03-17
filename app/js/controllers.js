@@ -4,51 +4,46 @@
 
 var myApp = angular.module('2lemetryApiV2.controllers', []);
 
-angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', 'domain', function ($scope, $rootScope, $http, $timeout, AuthService, m2m, PersistedData, domain) {
-    // get token to use for duration of session
-    $scope.login = function (username, password) {
-        if (!username || !password) {
-            throw new Error('please enter a username and a password');
-        }
+angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$timeout', 'AuthService', 'm2m', 'PersistedData', 'domain', 'notificationService', function ($scope, $rootScope, $timeout, AuthService, m2m, PersistedData, domain, notificationService) {
+  $scope.notifications = notificationService.get();
 
-        PersistedData.setDataSet('username', username);
-    	PersistedData.setDataSet('password', password);
+  // get token to use for duration of session
+  $scope.login = function (username, password) {
+    if (!username || !password) {
+      throw new Error('please enter a username and a password');
+    }
 
-        var onAuthOK = function (a) {
-            PersistedData.setDataSet('BearerToken', a);
-            $scope.token = a.token;
-            // set global $http stuff
-            $http.defaults.headers.common['Authorization'] = 'Bearer ' + a.token;
-            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    PersistedData.setDataSet('username', username);
+	PersistedData.setDataSet('password', password);
 
-            $scope.domain = m2m.Domain.get(function () {
-                PersistedData.setDataSet('Domain', $scope.domain);
-                domain = $scope.domain;
+    var onAuthOK = function (a) {
+      PersistedData.setDataSet('BearerToken', a);
+      
+      $scope.domain = m2m.Domain.get(function () {
+        PersistedData.setDataSet('Domain', $scope.domain);
+        domain = $scope.domain;
 
-                $scope.$emit('authenticated');
-            });
-        };
+        AuthService.addAuthorizationHeader(a.token);
 
-        var onAuthKO = function (a) {
-            console.log("login failed");
-        };
+        $scope.$emit('authenticated');
+        notificationService.addSuccess('Authenticated');
 
-        AuthService.auth(username, password, onAuthOK, onAuthKO);
+      });
     };
 
-    var authInfo = PersistedData.getDataSet('BearerToken');
-    if (authInfo) {
-        $scope.token = authInfo.token;
-        // not loving doing this twice
-        $http.defaults.headers.common['Authorization'] = 'Bearer ' + authInfo.token;
-    }
-    var domain = PersistedData.getDataSet('Domain');
-    if (authInfo) {
-        $scope.domain = domain;
-    }
+    var onAuthKO = function (a) {
+      notificationService.addDanger("login failed");
+    };
+
+    AuthService.auth(username, password, onAuthOK, onAuthKO);
+  };
+
+  $scope.domain = PersistedData.getDataSet('Domain');
+  $scope.token = PersistedData.getDataSet('BearerToken').token;
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', ['$scope', 'm2m', function ($scope, m2m) {
+angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', ['$scope', 'm2m', 'notificationService', function ($scope, m2m, notificationService) {
+    $scope.notifications = notificationService.get();
     $scope.topicObject = m2m.Topics.get();
 }]);
 
@@ -65,6 +60,8 @@ angular.module('2lemetryApiV2.controllers').controller('CreateAccountController'
 }]);
 
 angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$stateParams', 'm2m', 'PersistedData', 'notificationService', function ($scope, $stateParams, m2m, PersistedData, notificationService) {
+    $scope.notifications = notificationService.get();
+    
     $scope.changePassword = function (newPassword, updatingRowkey) {
         $scope.pwdChange = m2m.AccountPwd.change({ password: newPassword, rowkey: updatingRowkey }, function (value, responseHeaders) {
             $scope.account = value;
@@ -75,8 +72,6 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         });
     };
 
-    $scope.notifications = notificationService.get();
-	
     $scope.findUser = function (email) {
         $scope.account = m2m.Account.get({ 'email': email }, function () {
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
@@ -147,7 +142,9 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', 'PersistedData', function ($rootScope, $scope, m2mSocket, PersistedData) {
+angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', 'PersistedData', 'notificationService', function ($rootScope, $scope, m2mSocket, PersistedData, notificationService) {
+    $scope.notifications = notificationService.get();
+    
     var flattenSubscriptions = function (clientId, subscriptions) { 
 		var subscription = new Array();
         for (var i = 0; i < subscriptions.length; i++) {

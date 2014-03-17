@@ -8,18 +8,31 @@
 var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
     value('version', '0.1.1').
     value('domain', 'test').
-    factory('AuthService',function ($http) {
+    factory('AuthService', ['$http', 'PersistedData', function ($http, PersistedData) {
         // $http is recommended for cases where you have to pass in variables (really) - or maybe I don't know what I'm doing...
         return {
             auth: function (username, password, successCb, errorCb) {
-                $http.get('https://api.m2m.io/2/auth', {
-                    headers: {
-                        Authorization: username + ":" + password
-                    }
-                }).success(successCb).error(errorCb);
+              $http.get('https://api.m2m.io/2/auth', {
+                headers: {
+                  Authorization: username + ":" + password
+                }
+              }).success(successCb).error(errorCb);
+            },
+            addAuthorizationHeader: function (token) {
+              $http.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+              $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            }, 
+            authFromLocalStorage: function () {
+              try {
+                var bearerToken = PersistedData.getDataSet('BearerToken');
+                this.addAuthorizationHeader(bearerToken.token);
+              } catch (e) {
+                return false;
+              }
+              return true;
             }
         };
-    }).
+    }]).
     // creates a persistent store to use for immutable (really immutable or probably
     // immutable for the duration of the user's session) data to be retained across screens
     factory('PersistedData', function ($rootScope) {
@@ -93,7 +106,7 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
 /**
  * service to manage error messages
  **/
- serviceModule.factory('notificationService', ['$interval', '$rootScope', function ($interval, $rootScope) {
+ serviceModule.factory('notificationService', ['$interval', '$rootScope', '$timeout', function ($interval, $rootScope, $timeout) {
     var cleanupInterval;
 
     $rootScope.notifications = { //mapped to bootstrap's css
@@ -119,29 +132,32 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
                 }
             };
 
-        if (newVal !== oldVal) {
-            for (var type in $rootScope.notifications) {
-                //if any notifications have a length, start timer
-                if ($rootScope.notifications[type].length > 0) {
-                    start = true;
-                    break;
-                }
+        //if (newVal !== oldVal) { //newVal === oldVal now that I am using app.run. but now this logic is going to be hit a lot more
+          for (var type in $rootScope.notifications) {
+            //if any notifications have a length, start timer
+            if ($rootScope.notifications[type].length > 0) {
+              start = true;
+              break;
             }
-            if (start && !polling) {
-                console.log('start polling');
-                polling = false;
-                cleanupInterval = $interval(cleanup, 2000);
-            } else if (!start && polling) {
-                console.log('stop polling');
-                $interval.cancel(cleanupInterval);
-            }
-        }
+          }
+          if (start && !polling) {
+             console.log('start polling');
+              polling = false;
+              cleanupInterval = $interval(cleanup, 2000);
+          } else if (!start && polling) {
+              console.log('stop polling');
+              $interval.cancel(cleanupInterval);
+          }
+        //}
     }, true);
 
     //todo - add more addX helper methods
     return {
         addDanger: function (message) {
             this.add('danger', message);
+        }, 
+        addSuccess: function (message) {
+            this.add('success', message);
         }, 
         add: function (type, message) {
             $rootScope.notifications[type].push({ 
