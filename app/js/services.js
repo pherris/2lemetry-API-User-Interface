@@ -6,19 +6,33 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
-    value('version', '0.1.0').
-    factory('AuthService',function ($http) {
+    value('version', '0.1.1').
+    value('domain', 'test').
+    factory('AuthService', ['$http', 'PersistedData', function ($http, PersistedData) {
         // $http is recommended for cases where you have to pass in variables (really) - or maybe I don't know what I'm doing...
         return {
             auth: function (username, password, successCb, errorCb) {
-                $http.get('https://api.m2m.io/2/auth', {
-                    headers: {
-                        Authorization: username + ":" + password
-                    }
-                }).success(successCb).error(errorCb);
+              $http.get('https://api.m2m.io/2/auth', {
+                headers: {
+                  Authorization: username + ":" + password
+                }
+              }).success(successCb).error(errorCb);
+            },
+            addAuthorizationHeader: function (token) {
+              $http.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+              $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            }, 
+            authFromLocalStorage: function () {
+              try {
+                var bearerToken = PersistedData.getDataSet('BearerToken');
+                this.addAuthorizationHeader(bearerToken.token);
+              } catch (e) {
+                return false;
+              }
+              return true;
             }
         };
-    }).
+    }]).
     // creates a persistent store to use for immutable (really immutable or probably
     // immutable for the duration of the user's session) data to be retained across screens
     factory('PersistedData', function ($rootScope) {
@@ -71,7 +85,7 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
                     var domain = PersistedData.getDataSet('Domain');
                     return domain.rowkey;
                 }, clearAcl: true, email: '@email', password: '@password' },
-                isArray: true, // limits permissions
+                //isArray: true, // limits permissions
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                 }
@@ -86,6 +100,75 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
             remove: { method: 'PUT', params: { topic: '@topic', remove: 'remove', api: true, m2m: true }} //url: 'https://api.m2m.io/2/account/domain/:domain/acl/:acl/remove?api=true&m2m=true'
         }),
         Domain: $resource('https://api.m2m.io/2/account/domain/', {})
+    };
+}]);
+
+/**
+ * service to manage error messages
+ **/
+ serviceModule.factory('notificationService', ['$interval', '$rootScope', '$timeout', function ($interval, $rootScope, $timeout) {
+    var cleanupInterval;
+
+    $rootScope.notifications = { //mapped to bootstrap's css
+        'default': [],
+        'primary': [],
+        'success': [],
+        'info': [],
+        'warning': [],
+        'danger': []
+    };
+
+    //a little too clever for my own good here, watch how much we recurse....
+    $rootScope.$watch(function() { return $rootScope.notifications; }, function (newVal, oldVal) {
+        var start = false, 
+            polling = false, 
+            cleanup = function () {
+                for (var type in $rootScope.notifications) {
+                    for (var i = 0; i < $rootScope.notifications[type].length; i++) {
+                        if ($rootScope.notifications[type][i].added < new Date().getTime() - 1000 * 3) {
+                            $rootScope.notifications[type].splice(i, 1); 
+                        }
+                    }
+                }
+            };
+
+        //if (newVal !== oldVal) { //newVal === oldVal now that I am using app.run. but now this logic is going to be hit a lot more
+          for (var type in $rootScope.notifications) {
+            //if any notifications have a length, start timer
+            if ($rootScope.notifications[type].length > 0) {
+              start = true;
+              break;
+            }
+          }
+          if (start && !polling) {
+             console.log('start polling');
+              polling = false;
+              cleanupInterval = $interval(cleanup, 2000);
+          } else if (!start && polling) {
+              console.log('stop polling');
+              $interval.cancel(cleanupInterval);
+          }
+        //}
+    }, true);
+
+    //todo - add more addX helper methods
+    return {
+        addDanger: function (message) {
+            this.add('danger', message);
+        }, 
+        addSuccess: function (message) {
+            this.add('success', message);
+        }, 
+        add: function (type, message) {
+            $rootScope.notifications[type].push({ 
+                added: (new Date()).getTime(), 
+                msg: message, 
+                type: type 
+            });
+        },
+        get: function () {
+            return $rootScope.notifications;
+        }
     };
 }]);
 

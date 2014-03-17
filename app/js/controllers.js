@@ -4,76 +4,82 @@
 
 var myApp = angular.module('2lemetryApiV2.controllers', []);
 
-angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$http', '$timeout', 'AuthService', 'm2m', 'PersistedData', function ($scope, $rootScope, $http, $timeout, AuthService, m2m, PersistedData) {
-    // get token to use for duration of session
-    $scope.login = function (username, password) {
-    	// TODO: 2lemetry to implement change to allow authentication to broker via websockets with api key
-    	PersistedData.setDataSet('username', username);
-    	PersistedData.setDataSet('password', password);
-        var onAuthOK = function (a) {
-            PersistedData.setDataSet('BearerToken', a);
-            $scope.token = a.token;
-            // set global $http stuff
-            $http.defaults.headers.common['Authorization'] = 'Bearer ' + a.token;
-            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$timeout', 'AuthService', 'm2m', 'PersistedData', 'domain', 'notificationService', function ($scope, $rootScope, $timeout, AuthService, m2m, PersistedData, domain, notificationService) {
+  $scope.notifications = notificationService.get();
 
-            $scope.domain = m2m.Domain.get(function () {
-                PersistedData.setDataSet('Domain', $scope.domain);
-                $scope.$emit('authenticated');
-            });
-        };
+  // get token to use for duration of session
+  $scope.login = function (username, password) {
+    if (!username || !password) {
+      throw new Error('please enter a username and a password');
+    }
 
-        var onAuthKO = function (a) {
-            console.log("login failed");
-        };
+    PersistedData.setDataSet('username', username);
+	PersistedData.setDataSet('password', password);
 
-        AuthService.auth(username, password, onAuthOK, onAuthKO);
+    var onAuthOK = function (a) {
+      PersistedData.setDataSet('BearerToken', a);
+      
+      $scope.domain = m2m.Domain.get(function () {
+        PersistedData.setDataSet('Domain', $scope.domain);
+        domain = $scope.domain;
+
+        AuthService.addAuthorizationHeader(a.token);
+
+        $scope.$emit('authenticated');
+        notificationService.addSuccess('Authenticated');
+
+      });
     };
 
-    var authInfo = PersistedData.getDataSet('BearerToken');
-    if (authInfo) {
-        $scope.token = authInfo.token;
-        // not loving doing this twice
-        $http.defaults.headers.common['Authorization'] = 'Bearer ' + authInfo.token;
-    }
-    var domain = PersistedData.getDataSet('Domain');
-    if (authInfo) {
-        $scope.domain = domain;
-    }
+    var onAuthKO = function (a) {
+      notificationService.addDanger("login failed");
+    };
+
+    AuthService.auth(username, password, onAuthOK, onAuthKO);
+  };
+
+  $scope.domain = PersistedData.getDataSet('Domain');
+  $scope.token = PersistedData.getDataSet('BearerToken').token;
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', ['$scope', 'm2m', function ($scope, m2m) {
+angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', ['$scope', 'm2m', 'notificationService', function ($scope, m2m, notificationService) {
+    $scope.notifications = notificationService.get();
     $scope.topicObject = m2m.Topics.get();
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', function ($scope, $location, m2m) {
+angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', 'notificationService', function ($scope, $location, m2m, notificationService) {
+    $scope.notifications = notificationService.get();
+
     $scope.createUser = function (email, password) {
         $scope.newAccount = m2m.AccountCreate.create({email: email, password: password }, function (value, responseHeaders) {
             $location.path("/accounts/" + email);
         }, function (httpResponse) {
-            $scope.error = httpResponse.data.message;
+            notificationService.addDanger(httpResponse.data.message);
         });
     }
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$routeParams', 'm2m', 'PersistedData', function ($scope, $routeParams, m2m, PersistedData) {
-    // $scope.account = m2m.Account.get();
-	$scope.changePassword = function (newPassword, updatingRowkey) {
+angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$stateParams', 'm2m', 'PersistedData', 'notificationService', function ($scope, $stateParams, m2m, PersistedData, notificationService) {
+    $scope.notifications = notificationService.get();
+    
+    $scope.changePassword = function (newPassword, updatingRowkey) {
         $scope.pwdChange = m2m.AccountPwd.change({ password: newPassword, rowkey: updatingRowkey }, function (value, responseHeaders) {
             $scope.account = value;
             $scope.newPwd = null;
             $scope.newPwd2 = null;
         }, function (httpResponse) {
-            $scope.error = httpResponse.data.message;
+            notificationService.addDanger(httpResponse.data.message);
         });
-    }
-	
+    };
+
     $scope.findUser = function (email) {
         $scope.account = m2m.Account.get({ 'email': email }, function () {
                 $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
+            }, function () {
+                notificationService.addDanger('account not found');
             }
         );
-    }
+    };
 
     $scope.saveUpdatedPermissions = function (newPerm) {
 
@@ -82,7 +88,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         m2m.ACL.save(newPerm, function () {
             $scope.acl = m2m.ACL.permissions({acl: $scope.account.aclid});
         }, function () {
-            console.log("failure: could not save new permissions");
+            notificationService.addDanger("failure: could not save new permissions");
         });
     };
 
@@ -117,14 +123,28 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
         });
     }
 
-    if ($routeParams.email) {
-        $scope.findUser($routeParams.email);
+    if ($stateParams.email) {
+        $scope.findUser($stateParams.email);
+        $scope.email = $stateParams.email;
     }
+
+    //count current permissions for UI
+    $scope.permLen = 0;
+    $scope.$watch('acl.attributes', function () {
+      if ($scope.acl && $scope.acl.attributes) {
+        $scope.permLen = 0; //reset
+        for (var perm in $scope.acl.attributes) {
+            $scope.permLen++;
+        }
+      }
+    });
 
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', 'PersistedData', function ($rootScope, $scope, m2mSocket, PersistedData) {
+angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', 'PersistedData', 'notificationService', function ($rootScope, $scope, m2mSocket, PersistedData, notificationService) {
+    $scope.notifications = notificationService.get();
+    
     var flattenSubscriptions = function (clientId, subscriptions) { 
 		var subscription = new Array();
         for (var i = 0; i < subscriptions.length; i++) {
