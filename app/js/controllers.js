@@ -143,9 +143,17 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', 'PersistedData', 'notificationService', function ($rootScope, $scope, m2mSocket, PersistedData, notificationService) {
-    $scope.notifications = notificationService.get();
-    
+angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSYSLog', 'PersistedData', 'notificationService', function ($rootScope, $scope, m2mSYSLog, PersistedData, notificationService) {
+    $scope.log = m2mSYSLog;
+    // $scope.$watch(function () { return m2mSYSLog.getLog(); }, function (newVal, oldVal) { 
+    //     console.log('val');
+    //     console.log(newVal);
+    //     if (newVal) {
+    //         $scope.log = newVal;
+    //     }
+    // });
+
+
  //    var flattenSubscriptions = function (clientId, subscriptions) { 
 	// 	var subscription = new Array();
  //        for (var i = 0; i < subscriptions.length; i++) {

@@ -177,28 +177,49 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
     };
 }]);
 
-serviceModule.factory('m2mSocket', ['$rootScope', '$q', '$timeout', 'config', 'notificationService', 'PersistedData', function ($rootScope, $q, $timeout, config, notificationService, PersistedData) {
-  var client = new Messaging.Client(config.broker.host, Number(config.broker.port), "andrewRalston"),
+serviceModule.factory('m2mSYSLog', ['$rootScope', '$q', '$timeout', 'config', 'notificationService', 'PersistedData', function ($rootScope, $q, $timeout, config, notificationService, PersistedData) {
+  this.log = {
+        'events': [{ type: 'info', msg: 'test' }],
+        'subscriptions': {}
+    };
+  
+  var maxLogEntries = 200,
+    client = new Messaging.Client(config.broker.host, Number(config.broker.port), "andrewRalston2"),
     keepAlive = 60,
     useSsl = false,
     cleanSession = true, 
-    'websocketListeners' = {
-      'onConnect': function onConnect() {
-        notificationService.addSuccess('websocket connection established.');
-        var domain = PersistedData.getDataSet('Domain').rowkey
-        client.subscribe(domain + "/$SYS/#");
-      },
-      'onConnectionLost': function (responseObject) {
-        if (responseObject.errorCode !== 0) {
-          notificationService.addDanger('Lost websocket connection : ' + responseObject.errorMessage);
+    websocketListeners = (function () {
+        var _log = log;
+        return {
+          'onConnect': function onConnect() {
+            notificationService.addSuccess('websocket connection established.');
+            var domain = PersistedData.getDataSet('Domain').rowkey
+            client.subscribe(domain + "/$SYS/#");
+            notificationService.addSuccess('subscribing to ' + domain + "/$SYS/#");
+          },
+          'onConnectionLost': function (responseObject) {
+            if (responseObject.errorCode !== 0) {
+              notificationService.addDanger('Lost websocket connection : ' + responseObject.errorMessage);
+            }
+          },
+          'onMessageArrived': function (message) {
+            console.log("onMessageArrived:" + message.destinationName);
+            //client.disconnect(); 
+            if (message.destinationName.indexOf('/$SYS/subscriptions') <= 0) {
+              _log.events.push({
+                'type': 'info',
+                'msg': formatMessage(message.destinationName, message.payloadString)
+              });
+            } else {
+                _log.subscriptions = JSON.parse(message.payloadString);
+            }
+          }
         }
-      },
-      'onMessageArrived': function onMessageArrived(message) {
-        notificationService.addSuccess(message.payloadString);
-        console.log("onMessageArrived:"+message.destinationName);
-        //client.disconnect(); 
-      }
+    })(), 
+    formatMessage = function (topic, message) {
+        return topic.slice(topic.indexOf('/$SYS') + 6, topic.length) + " : " + message
     };
+  
   //client.startTrace();
   client.onConnectionLost = websocketListeners.onConnectionLost;
   client.onMessageArrived = websocketListeners.onMessageArrived,
@@ -212,5 +233,19 @@ serviceModule.factory('m2mSocket', ['$rootScope', '$q', '$timeout', 'config', 'n
   });
 
   //console.log(client.getTraceLog());
-  
+
+  //keep array within reasonable size
+  $rootScope.$watch(function () { return this.log }, function (newVal, oldVal) {  
+    console.log(newVal);
+    if (newVal && newVal.length > maxLogEntries) {
+        this.log = newVal.slice(newVal.length - maxLogEntries, newVal.length);
+    }
+  });
+
+  // return {
+  //   getLog: function () { 
+  //     console.log('calling getter');
+      return this.log;
+  //   }
+  // }; 
 }]);
