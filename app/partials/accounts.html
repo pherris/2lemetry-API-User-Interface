@@ -9,7 +9,7 @@
   	Email: <input ng-model="email"> <button class="btn btn-primary" ng-click="findUser(email)">SEARCH</button>
 	</p>
 	<div ng-show="account && account.aclid">
-		<div class="panel panel-default" ng-repeat="(topic, permissions) in acl.attributes">
+		<div class="panel panel-default">
 		  <div class="panel-body">
 	      <table class="table table-striped">
 			  	<tr>

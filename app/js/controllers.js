@@ -144,14 +144,15 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
 }]);
 
 angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSYSLog', 'PersistedData', 'notificationService', function ($rootScope, $scope, m2mSYSLog, PersistedData, notificationService) {
-    $scope.log = m2mSYSLog;
-    // $scope.$watch(function () { return m2mSYSLog.getLog(); }, function (newVal, oldVal) { 
-    //     console.log('val');
-    //     console.log(newVal);
-    //     if (newVal) {
-    //         $scope.log = newVal;
-    //     }
-    // });
+    m2mSYSLog.connect();
+    $scope.log = m2mSYSLog.log;
+    $scope.$watch(function () { return m2mSYSLog.log; }, function (newVal, oldVal) { 
+        console.log('val');
+        console.log(newVal);
+        if (newVal) {
+            $scope.log = m2mSYSLog.log;
+        }
+    });
 
 
  //    var flattenSubscriptions = function (clientId, subscriptions) { 

@@ -66,3 +66,12 @@ h4 {
   content: "";
   padding: 0;
 }
+
+.log-events {
+  padding: 15px;
+}
+
+.log {
+  max-width: 600px;
+  overflow-y: auto;
+}

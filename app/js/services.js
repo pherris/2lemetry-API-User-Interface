@@ -178,74 +178,70 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
 }]);
 
 serviceModule.factory('m2mSYSLog', ['$rootScope', '$q', '$timeout', 'config', 'notificationService', 'PersistedData', function ($rootScope, $q, $timeout, config, notificationService, PersistedData) {
-  this.log = {
+
+  var _log = {
         'events': [{ type: 'info', msg: 'test' }],
         'subscriptions': {}
-    };
-  
-  var maxLogEntries = 200,
+    },
+    maxLogEntries = 200,
     client = new Messaging.Client(config.broker.host, Number(config.broker.port), "andrewRalston2"),
     keepAlive = 60,
     useSsl = false,
     cleanSession = true, 
-    websocketListeners = (function () {
-        var _log = log;
-        return {
-          'onConnect': function onConnect() {
-            notificationService.addSuccess('websocket connection established.');
-            var domain = PersistedData.getDataSet('Domain').rowkey
-            client.subscribe(domain + "/$SYS/#");
-            notificationService.addSuccess('subscribing to ' + domain + "/$SYS/#");
-          },
-          'onConnectionLost': function (responseObject) {
-            if (responseObject.errorCode !== 0) {
-              notificationService.addDanger('Lost websocket connection : ' + responseObject.errorMessage);
-            }
-          },
-          'onMessageArrived': function (message) {
-            console.log("onMessageArrived:" + message.destinationName);
-            //client.disconnect(); 
-            if (message.destinationName.indexOf('/$SYS/subscriptions') <= 0) {
-              _log.events.push({
-                'type': 'info',
-                'msg': formatMessage(message.destinationName, message.payloadString)
-              });
-            } else {
-                _log.subscriptions = JSON.parse(message.payloadString);
-            }
+    websocketListeners = {
+      'onConnect': function onConnect() {
+        notificationService.addSuccess('websocket connection established.');
+        var domain = PersistedData.getDataSet('Domain').rowkey
+        client.subscribe(domain + "/$SYS/#");
+        notificationService.addSuccess('subscribing to ' + domain + "/$SYS/#");
+      },
+      'onConnectionLost': function (responseObject) {
+        //if (responseObject.errorCode !== 0) {
+          notificationService.addDanger('Lost websocket connection : ' + responseObject.errorMessage);
+        //}
+      },
+      'onMessageArrived': function (message) {
+        console.log("onMessageArrived:" + message.destinationName);
+        //client.disconnect(); 
+        if (message.destinationName.indexOf('/$SYS/subscriptions') <= 0) {
+          _log.events.push({
+            'type': 'info',
+            'msg': formatMessage(message.destinationName, message.payloadString)
+          });
+
+          //trim up by removing first element(s)
+          if (_log.events.length > maxLogEntries) {
+            _log.events = _log.events.slice(_log.events.length - maxLogEntries, _log.events.length);
           }
+        } else {
+            _log.subscriptions = JSON.parse(message.payloadString);
         }
-    })(), 
+        $rootScope.$digest();
+      }
+    }, 
     formatMessage = function (topic, message) {
         return topic.slice(topic.indexOf('/$SYS') + 6, topic.length) + " : " + message
     };
   
   //client.startTrace();
   client.onConnectionLost = websocketListeners.onConnectionLost;
-  client.onMessageArrived = websocketListeners.onMessageArrived,
-  client.connect({
-    'userName': PersistedData.getDataSet('username'), 
-    'password': PersistedData.getDataSet('password_md5'), 
-    'keepAliveInterval': keepAlive, 
-    'useSSL': useSsl, 
-    'cleanSession': cleanSession,
-    'onSuccess': websocketListeners.onConnect 
-  });
-
+  client.onMessageArrived = websocketListeners.onMessageArrived;
   //console.log(client.getTraceLog());
+  
 
-  //keep array within reasonable size
-  $rootScope.$watch(function () { return this.log }, function (newVal, oldVal) {  
-    console.log(newVal);
-    if (newVal && newVal.length > maxLogEntries) {
-        this.log = newVal.slice(newVal.length - maxLogEntries, newVal.length);
-    }
-  });
+  return {
+    'connect': function () {
+      client.connect({
+        'userName': PersistedData.getDataSet('username'), 
+        'password': PersistedData.getDataSet('password_md5'), 
+        'keepAliveInterval': keepAlive, 
+        'useSSL': useSsl, 
+        'cleanSession': cleanSession,
+        'onSuccess': websocketListeners.onConnect 
+      });  
+      return client;
+    }, 
+    'log': _log
+  };
 
-  // return {
-  //   getLog: function () { 
-  //     console.log('calling getter');
-      return this.log;
-  //   }
-  // }; 
 }]);
