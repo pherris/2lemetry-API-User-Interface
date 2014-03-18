@@ -42,16 +42,28 @@ angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetry
       url: '/createAccount',
       templateUrl: 'partials/createAccount.html',
       controller: 'CreateAccountController'
+    })
+    .state('monitor', {
+      url: '/sys',
+      templateUrl: 'partials/sysMonitor.html',
+      controller: 'SysController'
     });
   });
 
 angular.module('2lemetryApiV2').run(['AuthService', 'notificationService', function (AuthService, notificationService) {
   if (AuthService.authFromLocalStorage()) { //adds authorization from local storage if present
-    notificationService.addSuccess('Authenticated');
+    notificationService.addSuccess('Loaded from local storage.');
   } else {
     //notificationService.addDanger('not auth');
   }
 }]);
+
+angular.module('2lemetryApiV2').value("config", {
+  'broker': {
+    'host': 'q.m2m.io',
+    'port': '8083'
+  }
+});
 
   // config(['$routeProvider', function($routeProvider) {
   //       $routeProvider.when('/authenticate', {templateUrl: 'partials/login.html', controller: 'AuthenticationController' });
