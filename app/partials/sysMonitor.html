@@ -1,12 +1,13 @@
-  Monitor the $SYS events on your account.
+  Monitor the $SYS events on your account. Newest events are at the top.
   <div class="panel panel-default">
     <div class="panel-heading">
-      Event Log
+      Event Log - Search: <input ng-model="query">
     </div>
-    <div class="panel-body">
-      <div ng-repeat="event in log.events">
-        <p class="log-events bg-{{ event.type }}">{{ event.msg }}</p>
+    <div class="panel-body log">
+      <div ng-repeat="event in log.events | filter:query">
+        <p class="log-events bg-{{ event.type }}">{{ event.received | date: 'short' }} : {{ event.msg }}</p>
       </div>
+      <a id="bottom"></a>
     </div>
   </div>
    
