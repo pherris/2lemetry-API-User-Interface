@@ -137,6 +137,7 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
 }]);
 
 angular.module('2lemetryApiV2.controllers').controller('SysController', ['$scope', 'm2mSYSLog', 'notificationService', function ($scope, m2mSYSLog, notificationService) {
-    m2mSYSLog.connect();
+    //m2mSYSLog.connect();
     $scope.log = m2mSYSLog.log;
+    $scope.showLog = false;
 }]);

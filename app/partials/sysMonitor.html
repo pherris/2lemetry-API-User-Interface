@@ -1,5 +1,10 @@
-  Monitor the $SYS events on your account. Newest events are at the top.
-  <div class="panel panel-default">
+  Monitor the $SYS events on your account. The log tab contains the last 200 events with the newest events at the top. The subscriptions tab shows all active subscriptions for your account.
+  <ul class="nav nav-tabs">
+    <li ng-class="showLog?'active':''"><a ng-click="showLog = !showLog">log</a></li>
+    <li ng-class="showLog?'':'active'"><a ng-click="showLog = !showLog">subscriptions</a></li>
+  </ul>
+  <br/>
+  <div class="panel panel-default" ng-show="showLog">
     <div class="panel-heading">
       Event Log - Search: <input ng-model="query">
     </div>
@@ -7,11 +12,32 @@
       <div ng-repeat="event in log.events | filter:query">
         <p class="log-events bg-{{ event.type }}">{{ event.received | date: 'short' }} : {{ event.msg }}</p>
       </div>
-      <a id="bottom"></a>
     </div>
   </div>
    
-  <div class="row">
+  <div class="panel panel-default" ng-show="!showLog">
+    <div class="panel-heading">
+      Subscription List
+    </div>
+    <div class="panel-body log">
+      <div class="row">
+        <div class="col-md-3"><strong>Client ID</strong></div>
+        <div class="col-md-3"><strong>Topic</strong></div>
+        <div class="col-md-3"><strong>QoS</strong></div>
+        <div class="col-md-3"><strong>Clean Session</strong></div>
+      </div>
+      <div class="row" ng-repeat="subscriptions in log.subscriptions">
+        <div ng-repeat-"subscription in log.subscriptions[clientId]">
+          <div class="col-md-3">{{ clientId }}</div>
+          <div class="col-md-3">{{ subscription }}</div>
+          <div class="col-md-3">{{ subscription.qos }}</div>
+          <div class="col-md-3">{{ subscription.cleanSession }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" ng-show="!showLog">
     <div class="col-lg-12" >
       {{ log.subscriptions }}
     </div>

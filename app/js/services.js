@@ -8,7 +8,7 @@
 var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
     value('version', '0.1.1').
     value('domain', 'test').
-    factory('AuthService', ['$http', 'PersistedData', 'notificationService', function ($http, PersistedData, notificationService) {
+    factory('AuthService', ['$http', '$rootScope', 'PersistedData', 'notificationService', function ($http, $rootScope, PersistedData, notificationService) {
         // $http is recommended for cases where you have to modify headers (really) - or maybe I don't know what I'm doing...
         return {
             auth: function (username, password, successCb, errorCb) {
@@ -37,6 +37,8 @@ var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
               if (!success) {
                 notificationService.addDanger('not authenticated');
               }
+
+              $rootScope.$emit('authenticated', success); 
 
               return success;
             }
@@ -181,7 +183,7 @@ serviceModule.factory('m2mSYSLog', ['$rootScope', '$q', '$timeout', 'config', 'n
 
   var _log = {
         'events': [],
-        'subscriptions': {}
+        'subscriptions': {"devynmichellegoetsch":[{"topic":"p/dcdev/#","qos":0,"cleanSession":true},{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/1027447/207/tt","qos":1,"cleanSession":false}],"nichole":[{"topic":"p/DCDEV/#","qos":1,"cleanSession":true}],"WEBSOCKET/chris":[{"topic":"p/dcdev/#","qos":1,"cleanSession":false}],"andrewRalston":[{"topic":"p/#","qos":1,"cleanSession":true},{"topic":"p/dcdev/#","qos":1,"cleanSession":true},{"topic":"p/dcdev/mop/+/+/hookdrop","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/+/+/hookdrop/+","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false}],"BDD TEST CLIENT":[{"topic":"p/dcdev/mop/+/+/hookdrop/+","qos":1,"cleanSession":false}],"davesclientid":[{"topic":"p/dcdev/retry1/mop/1234567/callrecord","qos":1,"cleanSession":true}],"MY CLIENT":[{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false}],"mike":[{"topic":"p/dcdev/#","qos":1,"cleanSession":true}],"SWETHA CLIENT":[{"topic":"p/dcdev/mop/+/+/hookdrop/+","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false}],"WS:1395247436540":[{"topic":"p/$SYS/#","qos":0,"cleanSession":true}]}
     },
     maxLogEntries = 200,
     client = new Messaging.Client(config.broker.host, Number(config.broker.port), "WS:" + new Date().getTime()),
@@ -189,7 +191,7 @@ serviceModule.factory('m2mSYSLog', ['$rootScope', '$q', '$timeout', 'config', 'n
     useSsl = false,
     WEBSOCKET_EVENT_PREFIX = 'Websocket',
     cleanSession = true, 
-    addLogEvent= function (subject, message) {
+    addLogEvent = function (subject, message) {
       if (subject.indexOf('/$SYS/subscriptions') <= 0) {
         var formattedMessage = '';
         if (subject.indexOf('/') === 1) {
@@ -233,7 +235,7 @@ serviceModule.factory('m2mSYSLog', ['$rootScope', '$q', '$timeout', 'config', 'n
         addLogEvent(message.destinationName, message.payloadString);
       }
     };
-  
+
   //client.startTrace();
   client.onConnectionLost = websocketListeners.onConnectionLost;
   client.onMessageArrived = websocketListeners.onMessageArrived;
