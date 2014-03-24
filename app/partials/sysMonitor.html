@@ -6,10 +6,10 @@
   <br/>
   <div class="panel panel-default" ng-show="showLog">
     <div class="panel-heading">
-      Event Log - Search: <input ng-model="query">
+      Event Log <span class="float-right">Search: <input ng-model="logSearch"></span>
     </div>
     <div class="panel-body log">
-      <div ng-repeat="event in log.events | filter:query">
+      <div ng-repeat="event in log.events | filter:logSearch">
         <p class="log-events bg-{{ event.type }}">{{ event.received | date: 'short' }} : {{ event.msg }}</p>
       </div>
     </div>
@@ -17,7 +17,7 @@
    
   <div class="panel panel-default" ng-show="!showLog">
     <div class="panel-heading">
-      Subscription List
+      Subscription List <span class="float-right">Topic Search: <input ng-model="subscriptionSearch"></span>
     </div>
     <div class="panel-body log">
       <div class="row">
@@ -27,7 +27,7 @@
         <div class="col-md-2"><strong>Clean Session</strong></div>
       </div>
       <div class="row" ng-repeat="(clientId, subscriptions) in log.subscriptions">
-        <div ng-repeat="subscription in log.subscriptions[clientId]">
+        <div ng-repeat="subscription in log.subscriptions[clientId] | filter:subscriptionSearch ">
           <div class="col-md-3">{{ clientId }}</div>
           <div class="col-md-6">{{ subscription.topic }}</div>
           <div class="col-md-1">{{ subscription.qos }}</div>
@@ -36,4 +36,3 @@
       </div>
     </div>
   </div>
-  

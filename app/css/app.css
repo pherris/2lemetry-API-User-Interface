@@ -75,3 +75,7 @@ h4 {
   max-height: 450px;
   overflow-y: auto;
 }
+
+.float-right {
+  float: right;
+}
