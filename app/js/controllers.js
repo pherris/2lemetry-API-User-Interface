@@ -140,4 +140,6 @@ angular.module('2lemetryApiV2.controllers').controller('SysController', ['$scope
     //m2mSYSLog.connect();
     $scope.log = m2mSYSLog.log;
     $scope.showLog = false;
+
+    $scope.testArray = [{"topic":"com.peoplenetonline/dcdev/2998/trailer/hookdrop/#","qos":1,"cleanSession":true},{"topic":"com.peoplenetonline/dcdev/2998/trailer/hookdrop/1244241","qos":1,"cleanSession":true}];
 }]);

@@ -183,7 +183,7 @@ serviceModule.factory('m2mSYSLog', ['$rootScope', '$q', '$timeout', 'config', 'n
 
   var _log = {
         'events': [],
-        'subscriptions': {"devynmichellegoetsch":[{"topic":"p/dcdev/#","qos":0,"cleanSession":true},{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/1027447/207/tt","qos":1,"cleanSession":false}],"nichole":[{"topic":"p/DCDEV/#","qos":1,"cleanSession":true}],"WEBSOCKET/chris":[{"topic":"p/dcdev/#","qos":1,"cleanSession":false}],"andrewRalston":[{"topic":"p/#","qos":1,"cleanSession":true},{"topic":"p/dcdev/#","qos":1,"cleanSession":true},{"topic":"p/dcdev/mop/+/+/hookdrop","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/+/+/hookdrop/+","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false}],"BDD TEST CLIENT":[{"topic":"p/dcdev/mop/+/+/hookdrop/+","qos":1,"cleanSession":false}],"davesclientid":[{"topic":"p/dcdev/retry1/mop/1234567/callrecord","qos":1,"cleanSession":true}],"MY CLIENT":[{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false}],"mike":[{"topic":"p/dcdev/#","qos":1,"cleanSession":true}],"SWETHA CLIENT":[{"topic":"p/dcdev/mop/+/+/hookdrop/+","qos":1,"cleanSession":false},{"topic":"p/dcdev/mop/+/207/tt","qos":1,"cleanSession":false}],"WS:1395247436540":[{"topic":"p/$SYS/#","qos":0,"cleanSession":true}]}
+        'subscriptions': {}
     },
     maxLogEntries = 200,
     client = new Messaging.Client(config.broker.host, Number(config.broker.port), "WS:" + new Date().getTime()),

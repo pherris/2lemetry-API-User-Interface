@@ -22,23 +22,18 @@
     <div class="panel-body log">
       <div class="row">
         <div class="col-md-3"><strong>Client ID</strong></div>
-        <div class="col-md-3"><strong>Topic</strong></div>
-        <div class="col-md-3"><strong>QoS</strong></div>
-        <div class="col-md-3"><strong>Clean Session</strong></div>
+        <div class="col-md-6"><strong>Topic</strong></div>
+        <div class="col-md-1"><strong>QoS</strong></div>
+        <div class="col-md-2"><strong>Clean Session</strong></div>
       </div>
-      <div class="row" ng-repeat="subscriptions in log.subscriptions">
-        <div ng-repeat-"subscription in log.subscriptions[clientId]">
+      <div class="row" ng-repeat="(clientId, subscriptions) in log.subscriptions">
+        <div ng-repeat="subscription in log.subscriptions[clientId]">
           <div class="col-md-3">{{ clientId }}</div>
-          <div class="col-md-3">{{ subscription }}</div>
-          <div class="col-md-3">{{ subscription.qos }}</div>
-          <div class="col-md-3">{{ subscription.cleanSession }}</div>
+          <div class="col-md-6">{{ subscription.topic }}</div>
+          <div class="col-md-1">{{ subscription.qos }}</div>
+          <div class="col-md-2">{{ subscription.cleanSession }}</div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="row" ng-show="!showLog">
-    <div class="col-lg-12" >
-      {{ log.subscriptions }}
-    </div>
-  </div> 
+  
