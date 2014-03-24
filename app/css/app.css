@@ -66,3 +66,16 @@ h4 {
   content: "";
   padding: 0;
 }
+
+.log-events {
+  padding: 15px;
+}
+
+.log {
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.float-right {
+  float: right;
+}

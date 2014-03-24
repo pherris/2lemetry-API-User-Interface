@@ -1,20 +1,5 @@
 'use strict';
 
-//thanks frank v.
-var MqttClientApp = {};
-// MqttClientApp.listeners = new Jvent();
-// MqttClientApp.credentials = { public: false };
-
-//MqttClientApp.sessionStorageManager = new CookieStorageManager();
-//MqttClientApp.appViewController = new AppViewController();
-//MqttClientApp.alertViewController = new AlertViewController();
-
-// MqttClientApp.subscriptionManager = new SubscriptionsManager();
-// MqttClientApp.publisher = new Publisher();
-
-// MqttClientApp.listeners.emit('showAlert', "This application is intended to work with brokers that are compliant with the standard <a href=\"http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.javascript.git/tree/src/mqttws31.js\" target=\"_blank\">mqttws31.js file</a> provided by eclipse.org. It is not intended to proxy MQTT messages to noncompliant brokers");
-
-// Declare app level module which depends on filters, and services
 angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetryApiV2.services', '2lemetryApiV2.directives', '2lemetryApiV2.controllers', 'ngGrid'])
   .config(function($stateProvider, $urlRouterProvider) {
   //
@@ -42,23 +27,32 @@ angular.module('2lemetryApiV2', ['ui.router', '2lemetryApiV2.filters', '2lemetry
       url: '/createAccount',
       templateUrl: 'partials/createAccount.html',
       controller: 'CreateAccountController'
+    })
+    .state('monitor', {
+      url: '/sys',
+      templateUrl: 'partials/sysMonitor.html',
+      controller: 'SysController'
     });
   });
 
-angular.module('2lemetryApiV2').run(['AuthService', 'notificationService', function (AuthService, notificationService) {
+angular.module('2lemetryApiV2').run(['$rootScope', 'AuthService', 'm2mSYSLog', 'notificationService', function ($rootScope, AuthService, m2mSYSLog, notificationService) {
+  //websocket connection established once http authentication is completed.
+  $rootScope.$on('authenticated', function (event, authenticated) {
+    if (authenticated) {
+      m2mSYSLog.connect();
+    }
+  });
+
   if (AuthService.authFromLocalStorage()) { //adds authorization from local storage if present
-    notificationService.addSuccess('Authenticated');
+    notificationService.addSuccess('Loaded from local storage.');
   } else {
     //notificationService.addDanger('not auth');
   }
 }]);
 
-  // config(['$routeProvider', function($routeProvider) {
-  //       $routeProvider.when('/authenticate', {templateUrl: 'partials/login.html', controller: 'AuthenticationController' });
-  //       $routeProvider.when('/listTopics', {templateUrl: 'partials/listTopics.html', controller: 'ListTopicsController' });
-  //       $routeProvider.when('/accounts/:email', {templateUrl: 'partials/accounts.html', controller: 'AccountController' });
-  //       $routeProvider.when('/accounts', {templateUrl: 'partials/accounts.html', controller: 'AccountController' });
-  //       $routeProvider.when('/createAccount', {templateUrl: 'partials/createAccount.html', controller: 'CreateAccountController' });
-  //       $routeProvider.when('/sys', {templateUrl: 'partials/sysMonitor.html', controller: 'SysController', reloadOnSearch:true });
-  //       $routeProvider.otherwise({redirectTo: '/authenticate'});
-  // }]);
+angular.module('2lemetryApiV2').value("config", {
+  'broker': {
+    'host': 'q.m2m.io',
+    'port': '8083'
+  }
+});

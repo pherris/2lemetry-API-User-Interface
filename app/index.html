@@ -35,7 +35,7 @@
       		<li><a href="#/listTopics">Topics</a></li>
       		<li><a href="#/accounts/">Manage Account</a></li>
       		<li><a href="#/createAccount">Create Account</a></li>
-      		<!-- <li><a href="#/sys">Monitor</a></li> -->
+      		<li><a href="#/sys">Monitor</a></li>
         </ul>
       </div>
       <div ng-repeat="notification in $root.notifications">
@@ -45,7 +45,7 @@
       </div>
       <div ui-view></div>
       <div class="footer">
-        <p>Domain: <span app-domain></span> - M2M Administration: v<span app-version></span></p>
+        <p><!-- Domain: <span app-domain></span> -  -->M2M Administration: v<span app-version></span></p>
       </div>
     </div>
     
@@ -60,7 +60,7 @@
   <script src="js/controllers.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/directives.js"></script></script>
-  <script src="lib/mqttws31.js"></script>
+  <script src="lib/paho/mqttws31.js"></script>
   <script src="lib/2lemetry/WebSocketClient.js"></script>  
   <script type="text/javascript" src="http://www.myersdaily.org/joseph/javascript/md5.js"></script>
   <script type="text/javascript" src="http://codeorigin.jquery.com/jquery-2.0.3.min.js"></script>

@@ -8,8 +8,8 @@
 var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
     value('version', '0.1.1').
     value('domain', 'test').
-    factory('AuthService', ['$http', 'PersistedData', function ($http, PersistedData) {
-        // $http is recommended for cases where you have to pass in variables (really) - or maybe I don't know what I'm doing...
+    factory('AuthService', ['$http', '$rootScope', 'PersistedData', 'notificationService', function ($http, $rootScope, PersistedData, notificationService) {
+        // $http is recommended for cases where you have to modify headers (really) - or maybe I don't know what I'm doing...
         return {
             auth: function (username, password, successCb, errorCb) {
               $http.get('https://api.m2m.io/2/auth', {
@@ -23,13 +23,24 @@ var serviceModule = angular.module('2lemetryApiV2.services', ['ngResource']).
               $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
             }, 
             authFromLocalStorage: function () {
+              var success = false;
               try {
                 var bearerToken = PersistedData.getDataSet('BearerToken');
-                this.addAuthorizationHeader(bearerToken.token);
+                if (bearerToken.created > (new Date()).getTime() - 1000 * 60 * 60 * 2.75) {
+                  this.addAuthorizationHeader(bearerToken.token);
+                  success = true;
+                }
               } catch (e) {
-                return false;
+                success = false;
               }
-              return true;
+
+              if (!success) {
+                notificationService.addDanger('not authenticated');
+              }
+
+              $rootScope.$emit('authenticated', success); 
+
+              return success;
             }
         };
     }]).
@@ -107,7 +118,7 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
  * service to manage error messages
  **/
  serviceModule.factory('notificationService', ['$interval', '$rootScope', '$timeout', function ($interval, $rootScope, $timeout) {
-    var cleanupInterval;
+    var cleanupInterval, polling = false;
 
     $rootScope.notifications = { //mapped to bootstrap's css
         'default': [],
@@ -120,35 +131,31 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
 
     //a little too clever for my own good here, watch how much we recurse....
     $rootScope.$watch(function() { return $rootScope.notifications; }, function (newVal, oldVal) {
-        var start = false, 
-            polling = false, 
-            cleanup = function () {
-                for (var type in $rootScope.notifications) {
-                    for (var i = 0; i < $rootScope.notifications[type].length; i++) {
-                        if ($rootScope.notifications[type][i].added < new Date().getTime() - 1000 * 3) {
-                            $rootScope.notifications[type].splice(i, 1); 
-                        }
-                    }
-                }
-            };
+      var start = false, 
+          cleanup = function () {
+              for (var type in $rootScope.notifications) {
+                  for (var i = 0; i < $rootScope.notifications[type].length; i++) {
+                      if ($rootScope.notifications[type][i].added < new Date().getTime() - 1000 * 3) {
+                          $rootScope.notifications[type].splice(i, 1); 
+                      }
+                  }
+              }
+          };
 
-        //if (newVal !== oldVal) { //newVal === oldVal now that I am using app.run. but now this logic is going to be hit a lot more
-          for (var type in $rootScope.notifications) {
-            //if any notifications have a length, start timer
-            if ($rootScope.notifications[type].length > 0) {
-              start = true;
-              break;
-            }
-          }
-          if (start && !polling) {
-             console.log('start polling');
-              polling = false;
-              cleanupInterval = $interval(cleanup, 2000);
-          } else if (!start && polling) {
-              console.log('stop polling');
-              $interval.cancel(cleanupInterval);
-          }
-        //}
+      for (var type in $rootScope.notifications) {
+        //if any notifications have a length, start timer
+        if ($rootScope.notifications[type].length > 0) {
+          start = true;
+          break;
+        }
+      }
+      if (start && !polling) {
+        polling = true;
+        cleanupInterval = $interval(cleanup, 2000);
+      } else if (!start && polling) {
+        polling = false;
+        $interval.cancel(cleanupInterval);
+      }
     }, true);
 
     //todo - add more addX helper methods
@@ -172,99 +179,82 @@ serviceModule.factory('m2m', ['PersistedData', '$resource', '$http', function (P
     };
 }]);
 
-serviceModule.factory('m2mSocket', ['$rootScope', '$q', '$timeout', function ($rootScope, $q, $timeout) {
-	var MqttClientApp = {
-      client : new WebSocketClient('q.m2m.io', 8083, 'webMonitor')
-    },  receivedData = [];
-	
-	return {
-	    connected: function () {
-	        return socket && socket.conn;
-	    },
-		connect: function (username, password, domain) {
-		    var deferred = $q.defer();
-		    
-		    if (socket && socket.conn) {
-		        console.log("already connected");
-		        deferred.resolve('connected');
-		        return deferred.promise;
-		    }
+serviceModule.factory('m2mSYSLog', ['$rootScope', '$q', '$timeout', 'config', 'notificationService', 'PersistedData', function ($rootScope, $q, $timeout, config, notificationService, PersistedData) {
 
-            this.listeners.addListener('connect', function(host, port, clientId, username, password,
-                keepAlive, useSsl, cleanSession, lastWillTopic, lastWillMessage, lastWillQos, lastWillRetain) {
-                
+  var _log = {
+        'events': [],
+        'subscriptions': {}
+    },
+    maxLogEntries = 200,
+    client = new Messaging.Client(config.broker.host, Number(config.broker.port), "WS:" + new Date().getTime()),
+    keepAlive = 60,
+    useSsl = false,
+    WEBSOCKET_EVENT_PREFIX = 'Websocket',
+    cleanSession = true, 
+    addLogEvent = function (subject, message) {
+      if (subject.indexOf('/$SYS/subscriptions') <= 0) {
+        var formattedMessage = '';
+        if (subject.indexOf('/') === 1) {
+            formattedMessage = subject.slice(subject.indexOf('/$SYS') + 6, subject.length) + " : " + message
+        } else {
+            formattedMessage = subject + " : " + message;
+        }
 
-                MqttClientApp.client.addLastWillMessage(lastWillTopic, lastWillMessage,
-                    lastWillQos, lastWillRetain);
+        _log.events.splice(0, 0, {
+          'type': 'info',
+          'msg': formattedMessage,
+          'received': new Date()
+        });
 
-                MqttClientApp.client.connect(username, password, keepAlive, useSsl, cleanSession, {});
-            });
-
-              
-			
-		    socket = new SocketMQ({
-				username:       username,
-		        md5Password:    md5(password),
-		        subscribe: [{
-		            topic: [domain + '/$SYS/#'],
-		            qos: 0
-		        }],
-		        ping: true
-		    });
-			
-			socket.on('error', function(error) {
-		         console.log('----- error -----');
-		         console.log(JSON.stringify(error));
-		    });
-			socket.on('connected', function() {
-		        console.log('----- connected -----');
-		    });
-		    socket.on('subscribed', function(subscribed) {
-		        console.log('----- subscribed -----');
-		        console.log(JSON.stringify(subscribed));
-		    });
-		    socket.on('unsubscribed', function(subscribed) {
-		        console.log('----- unsubscribed -----');
-		        console.log(JSON.stringify(subscribed));
-		    });
-		    socket.on('disconnected', function() {
-		        console.log('----- disconnected -----');
-		    });
-		
-		    socket.connect();
-		    
-		    $timeout(function() {
-		        deferred.resolve('connected');
-		    }, 1000);
-		    
-		    return deferred.promise;
-        },
-		on: function (eventName, callback) {
-			socket.on(eventName, function () {  
-		        var args = arguments;
-		        $rootScope.$apply(function () {
-		          callback.apply(socket, args);
-		        });
-			});
-	    },
-	    emit: function (eventName, data, callback) {
-	    	socket.emit(eventName, data, function () {
-		        var args = arguments;
-		        $rootScope.$apply(function () {
-		          if (callback) {
-		            callback.apply(socket, args);
-		          }
-		        });
-	    	});
-	    }, 
-	    /**
-         * Keeps data received for page reloads.
-         */
-	    cache: function (name, value) {
-	        return receivedData[name] = value;
-	    },
-	    getCache: function (name) {
-	        return receivedData[name];
-	    }
+        //trim up by removing first element(s)
+        if (_log.events.length > maxLogEntries) {
+          _log.events = _log.events.slice(0, maxLogEntries);
+        }
+      } else {
+         _log.subscriptions = JSON.parse(message);
+      }
+      $rootScope.$digest();
+    },
+    websocketListeners = {
+      'onConnect': function onConnect() {
+        notificationService.addSuccess('websocket connection established.');
+        addLogEvent(WEBSOCKET_EVENT_PREFIX, 'connection established');
+        var domain = PersistedData.getDataSet('Domain').rowkey
+        client.subscribe(domain + "/$SYS/#");
+        notificationService.addSuccess('subscribing to ' + domain + "/$SYS/#");
+      },
+      'onConnectionLost': function (responseObject) {
+        //if (responseObject.errorCode !== 0) {
+          notificationService.addDanger('Lost websocket connection : ' + responseObject.errorMessage);
+          addLogEvent(WEBSOCKET_EVENT_PREFIX, 'connection lost');
+        //}
+      },
+      'onMessageArrived': function (message) {
+        console.log("onMessageArrived:" + message.destinationName);
+        //client.disconnect(); 
+        addLogEvent(message.destinationName, message.payloadString);
+      }
     };
+
+  //client.startTrace();
+  client.onConnectionLost = websocketListeners.onConnectionLost;
+  client.onMessageArrived = websocketListeners.onMessageArrived;
+  //console.log(client.getTraceLog());
+  
+
+  return {
+    'connect': function () {
+      client.connect({
+        'userName': PersistedData.getDataSet('username'), 
+        'password': PersistedData.getDataSet('password_md5'), 
+        'keepAliveInterval': keepAlive, 
+        'useSSL': useSsl, 
+        'cleanSession': cleanSession,
+        'onSuccess': websocketListeners.onConnect 
+      });  
+      return client;
+    }, 
+    'log': _log
+  };
+
 }]);

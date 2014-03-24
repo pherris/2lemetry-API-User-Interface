@@ -5,25 +5,23 @@
 var myApp = angular.module('2lemetryApiV2.controllers', []);
 
 angular.module('2lemetryApiV2.controllers').controller('AuthenticationController', ['$scope', '$rootScope', '$timeout', 'AuthService', 'm2m', 'PersistedData', 'domain', 'notificationService', function ($scope, $rootScope, $timeout, AuthService, m2m, PersistedData, domain, notificationService) {
-  $scope.notifications = notificationService.get();
-
   // get token to use for duration of session
   $scope.login = function (username, password) {
     if (!username || !password) {
+      notificationService.addSuccess('Username and password required.');
       throw new Error('please enter a username and a password');
     }
 
     PersistedData.setDataSet('username', username);
-	PersistedData.setDataSet('password', password);
+	PersistedData.setDataSet('password_md5', md5(password));
 
     var onAuthOK = function (a) {
       PersistedData.setDataSet('BearerToken', a);
+      AuthService.addAuthorizationHeader(a.token);
       
       $scope.domain = m2m.Domain.get(function () {
         PersistedData.setDataSet('Domain', $scope.domain);
         domain = $scope.domain;
-
-        AuthService.addAuthorizationHeader(a.token);
 
         $scope.$emit('authenticated');
         notificationService.addSuccess('Authenticated');
@@ -38,18 +36,16 @@ angular.module('2lemetryApiV2.controllers').controller('AuthenticationController
     AuthService.auth(username, password, onAuthOK, onAuthKO);
   };
 
-  $scope.domain = PersistedData.getDataSet('Domain');
-  $scope.token = PersistedData.getDataSet('BearerToken').token;
+  $scope.domain   = PersistedData.getDataSet('Domain');
+  $scope.username = PersistedData.getDataSet('username');
+  $scope.token    = (PersistedData.getDataSet('BearerToken')) ? PersistedData.getDataSet('BearerToken').token : null;
 }]);
 
 angular.module('2lemetryApiV2.controllers').controller('ListTopicsController', ['$scope', 'm2m', 'notificationService', function ($scope, m2m, notificationService) {
-    $scope.notifications = notificationService.get();
-    $scope.topicObject = m2m.Topics.get();
+  $scope.topicObject = m2m.Topics.get();
 }]);
 
 angular.module('2lemetryApiV2.controllers').controller('CreateAccountController', ['$scope', '$location', 'm2m', 'notificationService', function ($scope, $location, m2m, notificationService) {
-    $scope.notifications = notificationService.get();
-
     $scope.createUser = function (email, password) {
         $scope.newAccount = m2m.AccountCreate.create({email: email, password: password }, function (value, responseHeaders) {
             $location.path("/accounts/" + email);
@@ -60,8 +56,6 @@ angular.module('2lemetryApiV2.controllers').controller('CreateAccountController'
 }]);
 
 angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$scope', '$stateParams', 'm2m', 'PersistedData', 'notificationService', function ($scope, $stateParams, m2m, PersistedData, notificationService) {
-    $scope.notifications = notificationService.get();
-    
     $scope.changePassword = function (newPassword, updatingRowkey) {
         $scope.pwdChange = m2m.AccountPwd.change({ password: newPassword, rowkey: updatingRowkey }, function (value, responseHeaders) {
             $scope.account = value;
@@ -142,84 +136,10 @@ angular.module('2lemetryApiV2.controllers').controller('AccountController', ['$s
     $scope.domain = PersistedData.getDataSet('Domain');
 }]);
 
-angular.module('2lemetryApiV2.controllers').controller('SysController', ['$rootScope', '$scope', 'm2mSocket', 'PersistedData', 'notificationService', function ($rootScope, $scope, m2mSocket, PersistedData, notificationService) {
-    $scope.notifications = notificationService.get();
-    
-    var flattenSubscriptions = function (clientId, subscriptions) { 
-		var subscription = new Array();
-        for (var i = 0; i < subscriptions.length; i++) {
-        	var sub = subscriptions[i];
-        	sub["clientId"] = clientId;
-        	subscription.push(sub);
-        }
-        return subscription;
-    }, subscribe = function () {
-	    m2mSocket.on('data', function (data) {
-            // console.log(JSON.stringify(data));
-            if (!data) {
-                return;
-            }
-            // assign different types of data to different models
-            if (data.topic.indexOf('subscriptions') > 0) {
-                if (m2mSocket.getCache('subscriptionsRaw') !== data.message) {
-                    var subscriptions = new Array();
-                    
-                    for (var clientId in data.message) { 
-                        subscriptions = subscriptions.concat(flattenSubscriptions(clientId, data.message[clientId]));
-                    } 
-                    m2mSocket.cache('subscriptions', subscriptions);
-                    m2mSocket.cache('subscriptionsRaw', data.message);
-                }
-            } else if (data.topic.indexOf('connect') > 0 ||
-                    data.topic.indexOf('lostconnect') > 0 || 
-                    data.topic.indexOf('disconnect') > 0) {
-                data.message.type = data.topic.substr(data.topic.lastIndexOf("/") + 1, data.topic.length);
-                m2mSocket.cache('connectLog', [data.message].concat(m2mSocket.getCache('connectLog')));
-            } else if (data.topic.indexOf('subscribe-errors') > 0) {
-                $scope.errorLog = [data.message].concat($scope.errorLog);
-            } else {
-                console.log("data: " + JSON.stringify(data));
-            }
-            
-            $scope.subscriptions = m2mSocket.getCache('subscriptions');
-            $scope.connectLog = m2mSocket.getCache('connectLog');
-        });
-	}, authenticate = function () { 
-        m2mSocket.connect(PersistedData.getDataSet('username'), 
-                PersistedData.getDataSet('password'), 
-                PersistedData.getDataSet('Domain').rowkey).then(subscribe); 
-    };
-    		
-	if (PersistedData.getDataSet('Domain') && PersistedData.getDataSet('username') && PersistedData.getDataSet('password')) {
-		authenticate();
-	} else {
-		$scope.$on('authenticated', authenticate);
-	}
-	
-	// TODO cleaner association between model and data cached in service
-	$scope.subscriptions = m2mSocket.getCache('subscriptions');
-	$scope.connectLog = m2mSocket.getCache('connectLog');
-	
-	$scope.connectGridOptions = { 
-	        data: 'connectLog',
-	        showFilter: true,
-            enableColumnResize: true,
-            columnDefs: [{ field: 'time', displayName: 'Time', width: 100, resizable: true },
-                         { field: 'clientid', displayName: 'Client Id', resizable: true },
-                         { field: 'type', displayName: 'Event', width: 100, resizable: true }] 
-	};
-	$scope.errorGridOptions = { 
-	        data: 'errorLog',
-	        showFilter: true,
-	        enableColumnResize: true
-	};
-	$scope.subscriptionGridOptions = { 
-	        data: 'subscriptions',
-	        showFilter: true,
-            enableColumnResize: true,
-	        columnDefs: [{ field: 'qos', displayName: 'QOS', width: 50, resizable: true },
-                         { field: 'topic', displayName: 'Topic', resizable: true },
-                         { field: 'cleanSession', displayName: 'Clean Session?', width: 150, resizable: true },
-                         { field: 'clientId', displayName: 'Client Id', width: 250, resizable: true }]
-    };
+angular.module('2lemetryApiV2.controllers').controller('SysController', ['$scope', 'm2mSYSLog', 'notificationService', function ($scope, m2mSYSLog, notificationService) {
+    //m2mSYSLog.connect();
+    $scope.log = m2mSYSLog.log;
+    $scope.showLog = false;
+
+    $scope.testArray = [{"topic":"com.peoplenetonline/dcdev/2998/trailer/hookdrop/#","qos":1,"cleanSession":true},{"topic":"com.peoplenetonline/dcdev/2998/trailer/hookdrop/1244241","qos":1,"cleanSession":true}];
 }]);
